@@ -124,11 +124,11 @@ endfunction
 " Starts the process of discovering and describing keymaps.
 function! cheatkey#sync() abort
   if !empty(g:cheatkey_api_key_command)
-    echom "Syncing with AI..."
+    echom "CheatKey: Syncing with AI..."
     " TODO: Call the AI-based analyzer
   else
-    echom "Syncing with local analyzer..."
-    " TODO: Call the local rule-based analyzer
+    echom "CheatKey: Syncing with local analyzer..."
+    call s:analyze_local()
   endif
 endfunction
 
@@ -136,4 +136,70 @@ endfunction
 " PRIVATE FUNCTIONS (Internal logic)
 "==============================================================================
 
-" TODO: Add internal helper functions for parsing, analysis, etc.
+" Analyzes keymaps using the local, rule-based engine.
+function! s:analyze_local() abort
+  let all_maps = maplist()
+  let new_maps_found = 0
+
+  for map in all_maps
+    " Create a unique ID for the map to check against our registries.
+    let key_id = map.mode . '#' . map.lhs
+
+    " Skip if it's a recursive mapping, already documented manually, or generated before.
+    if map.recursive || has_key(s:registry.manual, key_id) || has_key(s:registry.generated, key_id)
+      continue
+    endif
+
+    " Generate a description for the new keymap.
+    let description = s:get_local_description(map.rhs)
+    if !empty(description)
+      let s:registry.generated[key_id] = {
+            \ 'mode': map.mode,
+            \ 'keys': map.lhs,
+            \ 'command': map.rhs,
+            \ 'description': description,
+            \ 'source': 'local'
+            \ }
+      let new_maps_found += 1
+    endif
+  endfor
+
+  if new_maps_found > 0
+    echom "CheatKey: Discovered and described " . new_maps_found . " new keybindings."
+  else
+    echom "CheatKey: No new keybindings discovered."
+  endif
+  
+  " Refresh the panel if it's already open
+  if bufwinnr('\[CheatKey Panel\]') != -1
+      call cheatkey#show_panel()
+  endif
+endfunction
+
+" Generates a description for a command (rhs) based on a set of rules.
+function! s:get_local_description(rhs) abort
+  " Rule 1: Handle <Plug> mappings, which are very common for plugins.
+  let plug_match = matchstr(a:rhs, '<Plug>(\([^)]\+\))')
+  if !empty(plug_match)
+    " Clean up the plug name, e.g., (vim-sneak-s) -> vim-sneak-s
+    let plug_name = substitute(plug_match, '[<>()Plug]', '', 'g')
+    return 'Plugin: ' . plug_name
+  endif
+
+  " Rule 2: Handle common commands (case-insensitive)
+  if a:rhs =~? '^\s*:w\b'
+    return 'Write file'
+  elseif a:rhs =~? '^\s*:q\b'
+    return 'Quit'
+  elseif a:rhs =~? '^\s*:NERDTreeToggle\b'
+    return 'Toggle NERDTree'
+  elseif a:rhs =~? '^\s*:Telescope\b'
+    return 'Open Telescope'
+  elseif a:rhs =~? '^\s*:FZF\b'
+    return 'Open FZF'
+  endif
+
+  " Fallback: if no specific rule matches, we don't return a description.
+  " This avoids polluting the panel with unhelpful entries.
+  return ''
+endfunction
