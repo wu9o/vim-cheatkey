@@ -1,6 +1,6 @@
 *cheatkey.cn.txt*    Vim 8.0+ 和 Neovim 可用      最后修改: 2025年8月9日
 
-CHEATKEY - 一个智能的快捷键备忘插件
+CHEATKEY - 一个双模式的快捷键备忘与探索插件
 English documentation: |cheatkey|
 
 ==============================================================================
@@ -13,53 +13,41 @@ English documentation: |cheatkey|
 ==============================================================================
 简介                                             *cheatkey-cn-introduction*
 
-`vim-cheatkey` 是一个智能的 Vim 插件。它提供一个两级系统来描述您的快捷键：
-一个免配置的本地分析器，以及一个可选的、由 AI 驱动的分析器以获得更精准的描述。
+`vim-cheatkey` 提供两种模式来查看您的快捷键：
+
+1.  *备忘模式*: 一个静态面板，只显示您通过 |:CheatKey| 命令明确记录的快捷键。
+2.  *探索模式*: 一个交互式的 |fzf.vim| 窗口，用于模糊搜索**所有**生效的快捷键。
 
 ==============================================================================
 命令                                                     *cheatkey-cn-commands*
 
 *:CheatKey*
-  手动定义一个带描述的快捷键。
+  为备忘面板定义一个快捷键。
+  用法: >
+    :CheatKey <mode> <keys> <command> "description"
+<
 
 *:CheatKeyPanel*
-  显示快捷键备忘面板。
+  显示静态的备忘面板。
 
-*:CheatKeySync*
-  异步扫描所有键位映射并生成描述。
+*:CheatKeyExplore*
+  使用 |fzf.vim| 探索所有快捷键。需要安装 `fzf.vim`。
 
 ==============================================================================
 配置                                             *cheatkey-cn-configuration*
 
-------------------------------------------------------------------------------
-通用配置                                           *cheatkey-cn-general-config*
+本插件的 |:CheatKeyExplore| 命令需要 |fzf.vim|。
 
-*g:cheatkey_language*
-  (可选) 描述的目标语言。默认为: `'en'`。
-  此设置会影响 AI 生成以及未来的本地化功能。
-  示例: >
-    let g:cheatkey_language = 'zh'
+使用 `vim-plug` 的安装示例:
+>
+  Plug 'junegunn/fzf.vim'
+  Plug 'wu9o/vim-cheatkey'
 <
 
-------------------------------------------------------------------------------
-AI 配置 (可选)                                         *cheatkey-cn-ai-config*
-
-要启用 AI 功能, 您至少需要设置 |g:cheatkey_api_key_command|。
-
-*g:cheatkey_ai_provider*
-  (可选) 使用的 AI 服务商。默认为: `'gemini'`。
-
-*g:cheatkey_model_name*
-  (可选) 使用的具体模型名称。
-
-*g:cheatkey_api_key_command*
-  (AI功能必须) 一个能输出您的 API 密钥的 shell 命令。
-  示例: >
-    let g:cheatkey_api_key_command = 'echo $GEMINI_API_KEY'
-<
-
-*g:cheatkey_prompt_template*
-  (可选) 用于 AI 的 Prompt 模板。必须包含 `{rhs}` 和 `{language}` 占位符。
+推荐的快捷键绑定:
+>
+  nmap <silent> <leader>? :CheatKeyPanel<CR>
+  nmap <silent> <leader>h :CheatKeyExplore<CR>
 <
 ==============================================================================
- vim:tw=78:ts=8:sw=4:sts=4:et:ft=help:norl:
+ vim:tw=78:ts=8:sw=4:sts=4:et:ft:help:norl:
