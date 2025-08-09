@@ -1,4 +1,6 @@
 
+[中文版](README.zh.md)
+
 # vim-cheatkey
 
 An intelligent keybinding cheatsheet plugin for Vim. It not only allows you to manually add descriptions to your keybindings but also automatically discovers all keymaps in your environment and uses AI to generate accurate descriptions for them in your preferred language.
