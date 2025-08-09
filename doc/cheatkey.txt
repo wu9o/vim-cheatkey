@@ -68,7 +68,8 @@ Example: `nmap <silent> <leader>? :CheatKeyPanel<CR>`
 <
 
 *g:cheatkey_api_key_command*
-  (Required) A shell command that outputs your API key.
+  (Required for AI) A shell command that outputs your API key. If this is
+  not set, the plugin will use its built-in local analyzer.
   Example: >
     let g:cheatkey_api_key_command = 'echo $GEMINI_API_KEY'
 <

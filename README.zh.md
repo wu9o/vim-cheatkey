@@ -64,7 +64,59 @@ let g:cheatkey_model_name = 'gemini-1.5-flash'
 let g:cheatkey_api_key_command = 'echo $GEMINI_API_KEY'
 
 " (可选) 自定义 Prompt 模板。必须包含 {rhs} 和 {language} 占位符。
+## 核心功能
+
+1.  **手动快捷键文档**: 提供 `:CheatKey` 命令，在创建快捷键的同时为其附加一段描述，拥有最高优先级。
+2.  **自动发现与同步**: 提供 `:CheatKeySync` 命令，可扫描您整个 Vim 环境以查找所有快捷键。
+3.  **两级描述生成机制**:
+    *   **本地回退分析器 (默认)**: 一个离线的、基于规则的引擎，能为常见的 Vim 命令和 `<Plug>` 映射提供足够好的描述。无需配置，开箱即用。
+    *   **AI 智能描述 (可选)**: 如果您提供了 API 密钥，插件能异步调用大语言模型 (LLM) 为快捷键生成更优秀、感知上下文的描述。
+4.  **快捷键面板**: 通过 `:CheatKeyPanel` 命令，弹出一个优雅的窗口，清晰地列出所有快捷键。
+5.  **轻量与异步**: AI 同步功能完全异步执行，确保在扫描和请求时不会冻结您的 Vim 编辑器。
+
+## 用户接口与命令
+...
+## 配置
+
+在您的 `.vimrc` 文件中进行如下配置：
+
+### 1. 安装插件 (以 `vim-plug` 为例)
+```vim
+Plug 'wu9o/vim-cheatkey'
+```
+
+### 2. AI 服务配置 (可选)
+
+如果您希望使用 AI 描述功能，请进行以下配置。否则，插件将使用内置的本地分析器。
+
+```vim
+" (可选) 设置您希望的语言，默认为 'en' (英语)。
+let g:cheatkey_language = 'zh'
+
+" (可选) 设置 AI 服务商，默认为 'gemini'。
+let g:cheatkey_ai_provider = 'gemini'
+
+" (可选) 设置使用的模型名称。
+let g:cheatkey_model_name = 'gemini-1.5-flash'
+
+" (AI功能必须) 设置一个能获取您 API Key 的 shell 命令。
+let g:cheatkey_api_key_command = 'echo $GEMINI_API_KEY'
+
+" (可选) 自定义 Prompt 模板。必须包含 {rhs} 和 {language} 占位符。
 let g:cheatkey_prompt_template = '你是一个 Vim 专家。Vim 中的一个快捷键执行以下命令: "{rhs}"。请用 {language}，以不超过15个字的长度，精准地描述这个快捷键的功能。只返回描述文本，不要任何额外的话。'
+```
+
+## 技术实现思路
+...
+- `cheatkey#sync()`:
+  - 使用 `maplist()` 获取所有映射。
+  - 筛选出需要处理的“孤儿”快捷键。
+  - **决策**: 检查 `g:cheatkey_api_key_command` 是否已配置。
+    - **如果配置了**: 通过 `job_start()` 异步调用 AI API。
+    - **如果未配置**: 调用本地的、基于规则的分析函数。
+  - 将生成的描述更新到注册表中。
+...
+
 ```
 
 ## 技术实现思路
