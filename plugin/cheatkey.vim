@@ -12,17 +12,14 @@ let g:loaded_cheatkey = 1
 " COMMANDS
 "==============================================================================
 
-" Defines a keybinding with a manual description.
+" Defines a keybinding with a manual description for the panel.
 command! -nargs=+ CheatKey call cheatkey#register(<q-args>)
 
-" Shows the static, user-defined cheatsheet panel.
-command! CheatKeyPanel call cheatkey#show_panel()
-
-" Opens an FZF window to explore ALL available mappings.
-command! CheatKeyExplore call cheatkey#explore()
-
-" Reloads the configuration (placeholder).
+" Scans and discovers all other available keybindings.
 command! CheatKeySync call cheatkey#sync()
+
+" Opens the unified FZF panel to view all keybindings.
+command! CheatKeyPanel call cheatkey#show_panel()
 
 " A little message to confirm the plugin is loaded, can be removed later.
 " echom "vim-cheatkey loaded successfully."
