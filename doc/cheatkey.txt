@@ -1,6 +1,6 @@
 *cheatkey.txt*      For Vim version 8.0 and Neovim      Last change: 2025 Aug 09
 
-CHEATKEY - A lightweight cheatsheet for your keybindings
+CHEATKEY - An intelligent cheatsheet for your keybindings
 
 ==============================================================================
 CONTENTS                                                 *cheatkey-contents*
@@ -12,15 +12,16 @@ CONTENTS                                                 *cheatkey-contents*
 ==============================================================================
 INTRODUCTION                                           *cheatkey-introduction*
 
-`vim-cheatkey` is a lightweight Vim plugin that allows users to add descriptions
-to their keybindings and view them anytime in an interactive panel, aiding
-memory and discovery.
+`vim-cheatkey` is an intelligent Vim plugin. It not only allows you to
+manually add descriptions to your keybindings but also automatically discovers
+all keymaps in your environment and uses AI to generate accurate descriptions
+for them.
 
 ==============================================================================
 COMMANDS                                                   *cheatkey-commands*
 
 *:CheatKey*
-  Define a keybinding with a description.
+  Define a keybinding with a manual description. This has the highest priority.
   Usage: >
     :CheatKey <mode> <keys> <command> "description"
 <
@@ -34,21 +35,42 @@ COMMANDS                                                   *cheatkey-commands*
     :CheatKeyPanel
 <
 
+*:CheatKeySync*
+  Asynchronously scan all keymaps and request AI-generated descriptions for
+  those without one.
+  Usage: >
+    :CheatKeySync
+<
+
 ==============================================================================
 CONFIGURATION                                           *cheatkey-configuration*
 
-To use this plugin, define your keybindings using the |:CheatKey| command in
-your `.vimrc` file.
+It is recommended to map the |:CheatKeyPanel| command to a keybinding for
+easy access. Example: `nmap <silent> <leader>? :CheatKeyPanel<CR>`
 
-It is also recommended to map the |:CheatKeyPanel| command to a keybinding for
-easy access.
+*g:cheatkey_ai_provider*
+  (Optional) The AI provider to use. Default: `'gemini'`.
+  Example: >
+    let g:cheatkey_ai_provider = 'gemini'
+<
 
-Example: >
-  " In your .vimrc
-  nmap <silent> <leader>? :CheatKeyPanel<CR>
+*g:cheatkey_model_name*
+  (Optional) The specific model name to use.
+  Example: >
+    let g:cheatkey_model_name = 'gemini-1.5-flash'
+<
 
-  CheatKey n <F5> :NERDTreeToggle<CR> "Toggle file browser"
-  CheatKey n <leader>s :w<CR> "Save current file"
+*g:cheatkey_api_key_command*
+  (Required) A shell command that outputs your API key.
+  Example: >
+    let g:cheatkey_api_key_command = 'echo $GEMINI_API_KEY'
+<
+
+*g:cheatkey_prompt_template*
+  (Optional) The prompt template for the AI. Must include `{rhs}`.
+  Default: 'You are a Vim expert... {rhs} ...'
+  Example: >
+    let g:cheatkey_prompt_template = 'As a Vim expert, describe the function of this command in Chinese within 10 characters: "{rhs}".'
 <
 
 ==============================================================================
