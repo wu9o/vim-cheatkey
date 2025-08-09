@@ -94,16 +94,25 @@ function! s:analyze_local() abort
   let all_maps = maplist()
   let new_maps_found = 0
   for map in all_maps
+    " --- Intelligent Filter ---
+    " 1. Ignore internal <Plug> mappings.
+    if stridx(map.lhs, '<Plug>') == 0 | continue | endif
+    " 2. Ignore mappings not defined in user's own config files.
+    let sid = map.sid
+    if sid <= 0 | continue | endif
+    let script_path = get(scriptnames(), sid - 1, '')
+    if empty(script_path) || (fnamemodify(script_path, ':h') !~? $HOME && script_path !=# $MYVIMRC) | continue | endif
+    " 3. Ignore already documented mappings.
     let key_id = map.mode . '#' . map.lhs
-    " Skip if the keybinding itself is a <Plug> map (internal), or already documented.
-    if stridx(map.lhs, '<Plug>') == 0 || has_key(s:registry.manual, key_id) || has_key(s:registry.generated, key_id) | continue | endif
+    if has_key(s:registry.manual, key_id) || has_key(s:registry.generated, key_id) | continue | endif
+
     let description = s:get_local_description(map.rhs)
     if !empty(description)
       let s:registry.generated[key_id] = {'mode': map.mode, 'keys': map.lhs, 'command': map.rhs, 'description': description, 'source': 'local'}
       let new_maps_found += 1
     endif
   endfor
-  echom "CheatKey: Discovered " . new_maps_found . " new keybindings."
+  echom "CheatKey: Discovered " . new_maps_found . " new user keybindings."
   if bufwinnr('\[CheatKey Panel\]') != -1 | call cheatkey#show_panel() | endif
 endfunction
 
@@ -128,9 +137,17 @@ function! s:analyze_ai() abort
   let jobs_started = 0
 
   for map in all_maps
+    " --- Intelligent Filter ---
+    " 1. Ignore internal <Plug> mappings.
+    if stridx(map.lhs, '<Plug>') == 0 | continue | endif
+    " 2. Ignore mappings not defined in user's own config files.
+    let sid = map.sid
+    if sid <= 0 | continue | endif
+    let script_path = get(scriptnames(), sid - 1, '')
+    if empty(script_path) || (fnamemodify(script_path, ':h') !~? $HOME && script_path !=# $MYVIMRC) | continue | endif
+    " 3. Ignore already documented mappings.
     let key_id = map.mode . '#' . map.lhs
-    " Skip if the keybinding itself is a <Plug> map (internal), or already documented.
-    if stridx(map.lhs, '<Plug>') == 0 || has_key(s:registry.manual, key_id) || has_key(s:registry.generated, key_id) | continue | endif
+    if has_key(s:registry.manual, key_id) || has_key(s:registry.generated, key_id) | continue | endif
     
     let prompt = substitute(g:cheatkey_prompt_template, '{rhs}', escape(map.rhs, '"'), 'g')
     let prompt = substitute(prompt, '{language}', g:cheatkey_language, 'g')
@@ -159,9 +176,9 @@ function! s:analyze_ai() abort
   endfor
 
   if jobs_started > 0
-    echom "CheatKey: AI sync started for " . jobs_started . " keybindings."
+    echom "CheatKey: AI sync started for " . jobs_started . " user keybindings."
   else
-    echom "CheatKey: No new keybindings to sync with AI."
+    echom "CheatKey: No new user keybindings to sync with AI."
   endif
 endfunction
 
