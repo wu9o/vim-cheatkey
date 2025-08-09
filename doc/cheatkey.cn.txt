@@ -65,7 +65,8 @@ CHEATKEY - 一个智能的快捷键备忘插件
 <
 
 *g:cheatkey_api_key_command*
-  (必须) 一个能输出您的 API 密钥的 shell 命令。
+  (AI功能必须) 一个能输出您的 API 密钥的 shell 命令。如果未设置此项，
+  插件将使用其内置的本地分析器。
   示例: >
     let g:cheatkey_api_key_command = 'echo $GEMINI_API_KEY'
 <
