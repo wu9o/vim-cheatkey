@@ -39,33 +39,26 @@ function! cheatkey#register(args) abort
 endfunction
 
 function! cheatkey#show_panel() abort
-  " Always open the panel window first.
+  " --- Cheat Sheet Mode ---
+  " This panel ONLY shows keybindings manually registered with :CheatKey.
   botright new [CheatKey Panel]
   setlocal buftype=nofile bufhidden=wipe noswapfile nonumber norelativenumber signcolumn=no cursorline
-  
-  " Set window-specific highlighting only if in Neovim, as Vim doesn't support it.
-  if has('nvim')
-    setlocal winhighlight=Normal:CheatKeyPanel,CursorLine:CheatKeyCursorLine
-  endif
+  if has('nvim') | setlocal winhighlight=Normal:CheatKeyPanel,CursorLine:CheatKeyCursorLine | endif
 
-  let all_maps = values(extend(copy(s:registry.generated), s:registry.manual))
+  let manual_maps = values(s:registry.manual)
   let lines = ["--- Vim CheatKey Panel (Press 'q' to close) ---", ""]
 
-  if empty(all_maps)
-    " If no keybindings are found, show a helpful message inside the panel.
+  if empty(manual_maps)
     call add(lines, "")
-    call add(lines, "No keybindings found yet.")
+    call add(lines, "No keybindings registered with :CheatKey yet.")
     call add(lines, "")
-    call add(lines, "How to add keybindings:")
-    call add(lines, "  1. Run `:CheatKeySync` to auto-discover existing mappings.")
-    call add(lines, "  2. Define them manually in your .vimrc with `:CheatKey`.")
-    call add(lines, "")
+    call add(lines, "Define them in your .vimrc, e.g.:")
+    call add(lines, "  CheatKey n <leader>s :w<CR> \"Save file\"")
   else
-    " If keybindings exist, display them in a formatted table.
     let header = printf("%-25s %-10s %s", "Keybinding", "(Mode)", "Description")
     call add(lines, header)
     call add(lines, repeat('=', strwidth(header)))
-    for map_info in all_maps
+    for map_info in manual_maps
       call add(lines, printf("%-25s %-10s %s", map_info.keys, '(' . map_info.mode . ')', map_info.description))
     endfor
   endif
@@ -77,143 +70,54 @@ function! cheatkey#show_panel() abort
   highlight default link CheatKeyCursorLine CursorLine
 endfunction
 
-function! cheatkey#sync() abort
-  if !empty(g:cheatkey_api_key_command)
-    call s:analyze_ai()
-  else
-    echom "CheatKey: Syncing with local analyzer..."
-    call s:analyze_local()
+function! cheatkey#explore() abort
+  " --- Explore Mode ---
+  " This uses FZF to search through ALL mappings.
+  if !exists('*fzf#run')
+    echom "CheatKey Error: fzf.vim is not installed. :CheatKeyExplore requires it."
+    return
   endif
+
+  let all_maps = maplist()
+  let formatted_maps = []
+
+  for map in all_maps
+    let source = s:get_map_source(map)
+    let line = printf("%-20s (%s) %-30s -> %s", source, map.mode, map.lhs, map.rhs)
+    call add(formatted_maps, line)
+  endfor
+
+  call fzf#run({
+        \ 'source': formatted_maps,
+        \ 'sink': 'echom', " For now, just echo the selected line.
+        \ 'options': '--header="Explore All Mappings" --layout=reverse'
+        \ })
+endfunction
+
+function! cheatkey#sync() abort
+  " This command is now for reloading .vimrc settings without restarting.
+  " For now, we just clear the registry. A more sophisticated implementation
+  " could re-source the vimrc.
+  let s:registry = { 'manual': {}, 'generated': {} }
+  echom "CheatKey registry cleared. Please restart or re-source your vimrc."
 endfunction
 
 "==============================================================================
 " PRIVATE FUNCTIONS (Internal logic)
 "==============================================================================
 
-function! s:analyze_local() abort
-  let all_maps = maplist()
-  let new_maps_found = 0
-  for map in all_maps
-    let key_id = map.mode . '#' . map.lhs
-
-    " --- New, Robust Filtering Logic ---
-    " 1. Ignore internal <Plug> mappings.
-    if stridx(map.lhs, '<Plug>') == 0 | continue | endif
-    " 2. Ignore single-character mappings (likely built-in), unless it's a special key.
-    if len(map.lhs) == 1 && map.lhs !~# '[<]' | continue | endif
-    " 3. Ignore already documented mappings.
-    if has_key(s:registry.manual, key_id) || has_key(s:registry.generated, key_id) | continue | endif
-
-    let description = s:get_local_description(map.rhs)
-    if !empty(description)
-      let s:registry.generated[key_id] = {'mode': map.mode, 'keys': map.lhs, 'command': map.rhs, 'description': description, 'source': 'local'}
-      let new_maps_found += 1
-    endif
-  endfor
-  echom "CheatKey: Discovered " . new_maps_found . " new keybindings."
-  if bufwinnr('\[CheatKey Panel\]') != -1 | call cheatkey#show_panel() | endif
-endfunction
-
-function! s:get_local_description(rhs) abort
-  let plug_match = matchstr(a:rhs, '<Plug>(\([^)]\+\))')
-  if !empty(plug_match) | return 'Plugin: ' . substitute(plug_match, '[<>()Plug]', '', 'g') | endif
-  if a:rhs =~? '^\s*:w\b' | return 'Write file' | endif
-  if a:rhs =~? '^\s*:q\b' | return 'Quit' | endif
-  if a:rhs =~? '^\s*:NERDTreeToggle\b' | return 'Toggle NERDTree' | endif
-  return ''
-endfunction
-
-function! s:analyze_ai() abort
-  let api_key = trim(system(g:cheatkey_api_key_command))
-  if v:shell_error || empty(api_key)
-    echom "CheatKey Error: Could not get API key from command: " . g:cheatkey_api_key_command
-    return
+function! s:get_map_source(map) abort
+  " Tries to find the source file of a mapping.
+  if !has_key(a:map, 'sid') || a:map.sid <= 0
+    return '[Vim Internal]'
   endif
 
-  let all_maps = maplist()
-  let s:ai_jobs = {} " Reset job tracker
-  let jobs_started = 0
-
-  for map in all_maps
-    " --- New, Robust Filtering Logic ---
-    " 1. Ignore internal <Plug> mappings.
-    if stridx(map.lhs, '<Plug>') == 0 | continue | endif
-    " 2. Ignore single-character mappings (likely built-in), unless it's a special key.
-    if len(map.lhs) == 1 && map.lhs !~# '[<]' | continue | endif
-    " 3. Ignore already documented mappings.
-    let key_id = map.mode . '#' . map.lhs
-    if has_key(s:registry.manual, key_id) || has_key(s:registry.generated, key_id) | continue | endif
-    
-    let prompt = substitute(g:cheatkey_prompt_template, '{rhs}', escape(map.rhs, '"'), 'g')
-    let prompt = substitute(prompt, '{language}', g:cheatkey_language, 'g')
-    let json_payload = printf('{"contents":[{"parts":[{"text": "%s"}]}]}', escape(prompt, '"'))
-    let url = printf('https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent?key=%s', g:cheatkey_model_name, api_key)
-    
-    let command = [
-          \ 'curl', '-s', '-X', 'POST',
-          \ '-H', 'Content-Type: application/json',
-          \ '-d', json_payload, url
-          \ ]
-    
-    let s:ai_jobs[jobs_started] = { 'status': 'running', 'map_info': map }
-    let job_options = {
-          \ 'on_exit': function('s:on_ai_response', [jobs_started]),
-          \ 'on_stdout': function('s:on_ai_response', [jobs_started]),
-          \ 'exit_cb': function('s:on_ai_response', [jobs_started])
-          \ }
-
-    if has('nvim')
-        call jobstart(command, job_options)
-    else
-        call job_start(command, job_options)
-    endif
-    let jobs_started += 1
-  endfor
-
-  if jobs_started > 0
-    echom "CheatKey: AI sync started for " . jobs_started . " user keybindings."
-  else
-    echom "CheatKey: No new user keybindings to sync with AI."
-  endif
-endfunction
-
-function! s:on_ai_response(job_id, data, event) dict
-    if !has_key(s:ai_jobs, a:job_id) || s:ai_jobs[a:job_id].status == 'finished'
-        return
-    endif
-
-    if a:event == 'exit'
-        let s:ai_jobs[a:job_id].status = 'finished'
-        let response_body = type(a:data) == v:t_list ? join(a:data, '') : a:data
-        
-        try
-            let response = json_decode(response_body)
-            let description = response.candidates[0].content.parts[0].text
-            let map_info = s:ai_jobs[a:job_id].map_info
-            let key_id = map_info.mode . '#' . map_info.lhs
-            let s:registry.generated[key_id] = {
-                  \ 'mode': map_info.mode,
-                  \ 'keys': map_info.lhs,
-                  \ 'command': map_info.rhs,
-                  \ 'description': trim(description),
-                  \ 'source': 'ai:' . g:cheatkey_ai_provider
-                  \ }
-        catch
-            " Ignore JSON parsing errors, as the job might fail for various reasons.
-        endtry
-
-        " Check if all jobs are finished
-        let all_finished = 1
-        for job in values(s:ai_jobs)
-            if job.status != 'finished'
-                let all_finished = 0
-                break
-            endif
-        endfor
-
-        if all_finished
-            echom "CheatKey: AI sync complete."
-            if bufwinnr('\[CheatKey Panel\]') != -1 | call cheatkey#show_panel() | endif
-        endif
-    endif
+  try
+    " scriptnames() is not available in all Vim versions, so we wrap it.
+    let script_path = scriptnames(a:map.sid)
+    " Return the filename, which is more readable than the full path.
+    return '[' . fnamemodify(script_path, ':t') . ']'
+  catch
+    return '[Unknown Source]'
+  endtry
 endfunction
