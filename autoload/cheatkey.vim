@@ -1,4 +1,4 @@
-"autoload/cheatkey.vim"
+" autoload/cheatkey.vim
 " Author: Gemini & wu9o
 " License: MIT
 "
@@ -21,7 +21,7 @@ function! cheatkey#register(args) abort
   if empty(desc_match) | echom "CheatKey Error: Description must be in quotes." | return | endif
   let description = desc_match[1]
   let command_part = substitute(a:args, '\v\s*".*"\s*$', '', '')
-  let parts = split(command_part, '\s+')
+  let parts = split(command_part, '\s\+')
   if len(parts) < 3 | echom "CheatKey Error: Invalid format." | return | endif
   let [mode, keys; command_list] = parts
   let command = join(command_list, ' ')
@@ -60,18 +60,15 @@ function! cheatkey#sync() abort
 
   let command_list = split(commands_output, "\n")
   for cmd_line in command_list
-    if cmd_line =~# '^\s*Name' || cmd_line !~# '^\s*!'
+    " Use a more robust pattern to capture the command name and its definition
+    let match = matchlist(cmd_line, '^\s*!\?|\?\s\+\(\S\+\)\s\+.*\s\+:\(.*\)')
+    if empty(match)
       continue
     endif
 
-    let parts = split(cmd_line)
-    if len(parts) < 2
-      continue
-    endif
-    
-    let source = s:get_command_source(parts, plugin_list)
-    let cmd_name = parts[1]
-    let cmd_def = join(parts[2:], ' ')
+    let cmd_name = match[1]
+    let cmd_def = match[2]
+    let source = s:get_command_source(cmd_name, cmd_def, plugin_list)
 
     let line = printf("% -20s (cmd)  %-25s -> %s", source, cmd_name, cmd_def)
     call add(formatted_lines, line)
@@ -128,12 +125,9 @@ function! s:get_plugin_list()
   return map(plugin_dirs, 'fnamemodify(v:val, ":t")')
 endfunction
 
-function! s:get_command_source(parts, plugin_list)
-  let cmd_name = a:parts[1]
-  let cmd_def = join(a:parts[2:], ' ')
-
+function! s:get_command_source(cmd_name, cmd_def, plugin_list)
   " Heuristic 1: Check definition for autoload functions (e.g., "call plug#...")
-  let autoload_match = matchlist(cmd_def, '\c\vcall\s+\([a-z0-9_]+\)#')
+  let autoload_match = matchlist(a:cmd_def, '\c\vcall\s\+\([a-z0-9_]\+\)#')
   if !empty(autoload_match)
     return '[' . autoload_match[1] . '.vim]'
   endif
@@ -141,7 +135,7 @@ function! s:get_command_source(parts, plugin_list)
   " Heuristic 2: Check command name prefix against plugin names
   for plugin_name in a:plugin_list
     let clean_plugin_name = substitute(plugin_name, '^vim-', '', '')
-    if stridx(tolower(cmd_name), tolower(clean_plugin_name)) == 0
+    if stridx(tolower(a:cmd_name), tolower(clean_plugin_name)) == 0
       return '[' . plugin_name . ']'
     endif
   endfor
