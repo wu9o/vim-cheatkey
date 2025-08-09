@@ -13,14 +13,15 @@ let g:loaded_cheatkey = 1
 "==============================================================================
 
 " Defines a keybinding with a manual description.
-" -nargs=+ means the command takes one or more arguments.
-" <q-args> passes all arguments as a single string, preserving quotes.
 command! -nargs=+ CheatKey call cheatkey#register(<q-args>)
 
-" Shows the keybinding cheatsheet panel.
+" Shows the static, user-defined cheatsheet panel.
 command! CheatKeyPanel call cheatkey#show_panel()
 
-" Asynchronously scans all keymaps and generates descriptions.
+" Opens an FZF window to explore ALL available mappings.
+command! CheatKeyExplore call cheatkey#explore()
+
+" Reloads the configuration (placeholder).
 command! CheatKeySync call cheatkey#sync()
 
 " A little message to confirm the plugin is loaded, can be removed later.
