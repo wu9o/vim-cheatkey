@@ -39,17 +39,33 @@ function! cheatkey#register(args) abort
 endfunction
 
 function! cheatkey#show_panel() abort
-  let all_maps = values(extend(copy(s:registry.generated), s:registry.manual))
-  if empty(all_maps) | echom "CheatKey: No keybindings found." | return | endif
+  " Always open the panel window first.
   botright new [CheatKey Panel]
   setlocal buftype=nofile bufhidden=wipe noswapfile nonumber norelativenumber signcolumn=no cursorline
   setlocal winhighlight=Normal:CheatKeyPanel,CursorLine:CheatKeyCursorLine
+
+  let all_maps = values(extend(copy(s:registry.generated), s:registry.manual))
   let lines = ["--- Vim CheatKey Panel (Press 'q' to close) ---", ""]
-  let header = printf("%-25s %-10s %s", "Keybinding", "(Mode)", "Description")
-  call add(lines, header) | call add(lines, repeat('=', strwidth(header)))
-  for map_info in all_maps
-    call add(lines, printf("%-25s %-10s %s", map_info.keys, '(' . map_info.mode . ')', map_info.description))
-  endfor
+
+  if empty(all_maps)
+    " If no keybindings are found, show a helpful message inside the panel.
+    call add(lines, "")
+    call add(lines, "No keybindings found yet.")
+    call add(lines, "")
+    call add(lines, "How to add keybindings:")
+    call add(lines, "  1. Run `:CheatKeySync` to auto-discover existing mappings.")
+    call add(lines, "  2. Define them manually in your .vimrc with `:CheatKey`.")
+    call add(lines, "")
+  else
+    " If keybindings exist, display them in a formatted table.
+    let header = printf("%-25s %-10s %s", "Keybinding", "(Mode)", "Description")
+    call add(lines, header)
+    call add(lines, repeat('=', strwidth(header)))
+    for map_info in all_maps
+      call add(lines, printf("%-25s %-10s %s", map_info.keys, '(' . map_info.mode . ')', map_info.description))
+    endfor
+  endif
+
   call setline(1, lines)
   setlocal nomodifiable
   nnoremap <silent> <buffer> q :q<CR>
