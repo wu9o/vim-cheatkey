@@ -42,7 +42,11 @@ function! cheatkey#show_panel() abort
   " Always open the panel window first.
   botright new [CheatKey Panel]
   setlocal buftype=nofile bufhidden=wipe noswapfile nonumber norelativenumber signcolumn=no cursorline
-  setlocal winhighlight=Normal:CheatKeyPanel,CursorLine:CheatKeyCursorLine
+  
+  " Set window-specific highlighting only if in Neovim, as Vim doesn't support it.
+  if has('nvim')
+    setlocal winhighlight=Normal:CheatKeyPanel,CursorLine:CheatKeyCursorLine
+  endif
 
   let all_maps = values(extend(copy(s:registry.generated), s:registry.manual))
   let lines = ["--- Vim CheatKey Panel (Press 'q' to close) ---", ""]
