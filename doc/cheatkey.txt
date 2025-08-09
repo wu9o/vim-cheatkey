@@ -13,63 +13,48 @@ CONTENTS                                                 *cheatkey-contents*
 ==============================================================================
 INTRODUCTION                                           *cheatkey-introduction*
 
-`vim-cheatkey` is an intelligent Vim plugin. It not only allows you to
-manually add descriptions to your keybindings but also automatically discovers
-all keymaps in your environment and uses AI to generate accurate descriptions
-for them in your preferred language.
+`vim-cheatkey` is an intelligent Vim plugin. It provides a two-tier system
+for describing your keybindings: a zero-configuration local analyzer, and an
+optional, AI-powered analyzer for more accurate descriptions.
 
 ==============================================================================
 COMMANDS                                                   *cheatkey-commands*
 
 *:CheatKey*
-  Define a keybinding with a manual description. This has the highest priority.
-  Usage: >
-    :CheatKey <mode> <keys> <command> "description"
-<
-  Example: >
-    :CheatKey n <leader>s :w<CR> "Save current file"
-<
+  Define a keybinding with a manual description.
 
 *:CheatKeyPanel*
   Show the keybinding cheatsheet panel.
-  Usage: >
-    :CheatKeyPanel
-<
 
 *:CheatKeySync*
-  Asynchronously scan all keymaps and request AI-generated descriptions for
-  those without one, in the configured language.
-  Usage: >
-    :CheatKeySync
-<
+  Asynchronously scan all keymaps and generate descriptions.
 
 ==============================================================================
 CONFIGURATION                                           *cheatkey-configuration*
 
-It is recommended to map |:CheatKeyPanel| to a keybinding for easy access.
-Example: `nmap <silent> <leader>? :CheatKeyPanel<CR>`
+------------------------------------------------------------------------------
+GENERAL CONFIGURATION                                *cheatkey-general-config*
 
 *g:cheatkey_language*
-  (Optional) The language for AI-generated descriptions. Default: `'en'`.
+  (Optional) The language for descriptions. Default: `'en'`.
+  This affects both AI generation and future localizations.
   Example: >
-    let g:cheatkey_language = 'zh'
+    let g:cheatkey_language = 'en'
 <
+
+------------------------------------------------------------------------------
+AI CONFIGURATION (OPTIONAL)                              *cheatkey-ai-config*
+
+To enable AI features, you must set at least |g:cheatkey_api_key_command|.
 
 *g:cheatkey_ai_provider*
-  (Optional) The AI provider to use. Default: `'gemini'`.
-  Example: >
-    let g:cheatkey_ai_provider = 'gemini'
-<
+  (Optional) The AI provider. Default: `'gemini'`.
 
 *g:cheatkey_model_name*
-  (Optional) The specific model name to use.
-  Example: >
-    let g:cheatkey_model_name = 'gemini-1.5-flash'
-<
+  (Optional) The specific model name.
 
 *g:cheatkey_api_key_command*
-  (Required for AI) A shell command that outputs your API key. If this is
-  not set, the plugin will use its built-in local analyzer.
+  (Required for AI) A shell command that outputs your API key.
   Example: >
     let g:cheatkey_api_key_command = 'echo $GEMINI_API_KEY'
 <
@@ -77,9 +62,6 @@ Example: `nmap <silent> <leader>? :CheatKeyPanel<CR>`
 *g:cheatkey_prompt_template*
   (Optional) The prompt template for the AI. Must include `{rhs}` and
   `{language}` placeholders.
-  Example: >
-    let g:cheatkey_prompt_template = 'As a Vim expert, describe the function of this command in {language}: "{rhs}".'
 <
-
 ==============================================================================
  vim:tw=78:ts=8:sw=4:sts=4:et:ft=help:norl:
