@@ -1,0 +1,80 @@
+*cheatkey.cn.txt*    Vim 8.0+ 和 Neovim 可用      最后修改: 2025年8月9日
+
+CHEATKEY - 一个智能的快捷键备忘插件
+英文文档请见 |cheatkey|
+
+==============================================================================
+目录                                                 *cheatkey-cn-contents*
+
+  1. 简介..........................................|cheatkey-cn-introduction|
+  2. 命令..........................................|cheatkey-cn-commands|
+  3. 配置..........................................|cheatkey-cn-configuration|
+
+==============================================================================
+简介                                             *cheatkey-cn-introduction*
+
+`vim-cheatkey` 是一个智能的 Vim 插件。它不仅允许您为快捷键手动添加描述，
+还能自动发现您环境中的所有键位映射，并使用 AI 为它们生成您所选语言的精准描述。
+
+==============================================================================
+命令                                                     *cheatkey-cn-commands*
+
+*:CheatKey*
+  手动定义一个带描述的快捷键。此描述拥有最高优先级。
+  用法: >
+    :CheatKey <模式> <键位> <命令> "描述"
+<
+  示例: >
+    :CheatKey n <leader>s :w<CR> "保存当前文件"
+<
+
+*:CheatKeyPanel*
+  显示快捷键备忘面板。
+  用法: >
+    :CheatKeyPanel
+<
+
+*:CheatKeySync*
+  异步扫描所有键位映射，并为没有描述的键位请求 AI 生成描述（使用配置的语言）。
+  用法: >
+    :CheatKeySync
+<
+
+==============================================================================
+配置                                             *cheatkey-cn-configuration*
+
+建议将 |:CheatKeyPanel| 命令映射到一个快捷键以便快速访问。
+示例: `nmap <silent> <leader>? :CheatKeyPanel<CR>`
+
+*g:cheatkey_language*
+  (可选) AI 生成描述的目标语言。默认为: `'en'`。
+  示例: >
+    let g:cheatkey_language = 'zh'
+<
+
+*g:cheatkey_ai_provider*
+  (可选) 使用的 AI 服务商。默认为: `'gemini'`。
+  示例: >
+    let g:cheatkey_ai_provider = 'gemini'
+<
+
+*g:cheatkey_model_name*
+  (可选) 使用的具体模型名称。
+  示例: >
+    let g:cheatkey_model_name = 'gemini-1.5-flash'
+<
+
+*g:cheatkey_api_key_command*
+  (必须) 一个能输出您的 API 密钥的 shell 命令。
+  示例: >
+    let g:cheatkey_api_key_command = 'echo $GEMINI_API_KEY'
+<
+
+*g:cheatkey_prompt_template*
+  (可选) 用于 AI 的 Prompt 模板。必须包含 `{rhs}` 和 `{language}` 占位符。
+  示例: >
+    let g:cheatkey_prompt_template = '作为 Vim 专家，请用 {language} 描述这个命令的功能: "{rhs}"。'
+<
+
+==============================================================================
+ vim:tw=78:ts=8:sw=4:sts=4:et:ft=help:norl:

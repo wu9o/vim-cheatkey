@@ -1,6 +1,7 @@
 *cheatkey.txt*      For Vim version 8.0 and Neovim      Last change: 2025 Aug 09
 
 CHEATKEY - An intelligent cheatsheet for your keybindings
+For Chinese documentation, see |cheatkey-cn|.
 
 ==============================================================================
 CONTENTS                                                 *cheatkey-contents*
