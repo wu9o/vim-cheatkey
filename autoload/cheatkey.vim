@@ -95,7 +95,8 @@ function! s:analyze_local() abort
   let new_maps_found = 0
   for map in all_maps
     let key_id = map.mode . '#' . map.lhs
-    if map.recursive || has_key(s:registry.manual, key_id) || has_key(s:registry.generated, key_id) | continue | endif
+    " Skip if it's a recursive mapping (noremap == 0), or already documented.
+    if map.noremap == 0 || has_key(s:registry.manual, key_id) || has_key(s:registry.generated, key_id) | continue | endif
     let description = s:get_local_description(map.rhs)
     if !empty(description)
       let s:registry.generated[key_id] = {'mode': map.mode, 'keys': map.lhs, 'command': map.rhs, 'description': description, 'source': 'local'}
@@ -128,7 +129,8 @@ function! s:analyze_ai() abort
 
   for map in all_maps
     let key_id = map.mode . '#' . map.lhs
-    if map.recursive || has_key(s:registry.manual, key_id) || has_key(s:registry.generated, key_id) | continue | endif
+    " Skip if it's a recursive mapping (noremap == 0), or already documented.
+    if map.noremap == 0 || has_key(s:registry.manual, key_id) || has_key(s:registry.generated, key_id) | continue | endif
     
     let prompt = substitute(g:cheatkey_prompt_template, '{rhs}', escape(map.rhs, '"'), 'g')
     let prompt = substitute(prompt, '{language}', g:cheatkey_language, 'g')
