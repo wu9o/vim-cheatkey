@@ -1,53 +1,53 @@
-*cheatkey.cn.txt*    Vim 8.0+ 和 Neovim 可用      最后修改: 2025年8月9日
-
-CHEATKEY - 一个双模式的快捷键备忘与探索插件
-English documentation: |cheatkey|
+*cheatkey.cn.txt*	针对 vim-cheatkey 的中文帮助文档
 
 ==============================================================================
-目录                                                 *cheatkey-cn-contents*
+目录                                          *cheatkey-contents*
 
-  1. 简介..........................................|cheatkey-cn-introduction|
-  2. 命令..........................................|cheatkey-cn-commands|
-  3. 配置..........................................|cheatkey-cn-configuration|
-
-==============================================================================
-简介                                             *cheatkey-cn-introduction*
-
-`vim-cheatkey` 提供两种模式来查看您的快捷键：
-
-1.  *备忘模式*: 一个静态面板，只显示您通过 |:CheatKey| 命令明确记录的快捷键。
-2.  *探索模式*: 一个交互式的 |fzf.vim| 窗口，用于模糊搜索**所有**生效的快捷键。
+  1. 简介...........................|cheatkey-introduction|
+  2. 命令...........................|cheatkey-commands|
+  3. 配置...........................|cheatkey-configuration|
 
 ==============================================================================
-命令                                                     *cheatkey-cn-commands*
+简介                                          *cheatkey-introduction*
 
-*:CheatKey*
-  为备忘面板定义一个快捷键。
-  用法: >
-    :CheatKey <mode> <keys> <command> "description"
-<
+vim-cheatkey 帮助您发现并搜索在当前 Vim 环境中所有可用的快捷键映射和
+命令。它将所有信息整合在一个统一的 fzf 面板中，让您无需离开编辑器即可
+轻松找到所需的功能。
+
+本文档的英文版本，请查阅 |cheatkey.txt|。
+
+==============================================================================
+命令                                          *cheatkey-commands*
 
 *:CheatKeyPanel*
-  显示静态的备忘面板。
+  打开核心的 fzf 搜索面板。此面板包含一个合并后的列表，数据来源于内置
+  缓存、自动生成的缓存以及您手动添加的注解。
 
-*:CheatKeyExplore*
-  使用 |fzf.vim| 探索所有快捷键。需要安装 `fzf.vim`。
+*:CheatKeySync*
+  扫描您当前的 Vim 配置，找出所有非默认的快捷键映射和命令，然后将它们
+  写入位于 `~/.cache/vim-cheatkey/generated_cache.txt` 的缓存文件中。
+  在安装新插件或更改键位映射后，请运行此命令。
+
+*:CheatKey* "<模式> <键位>" "<描述>"
+  手动注册一个快捷键，并为其添加自定义描述。这对于记录您自己的自定义
+  映射非常有用。注解信息被保存在 `~/.cache/vim-cheatkey/manual_cache.txt`。
+
+  示例: >
+    :CheatKey "n <leader>f" "在项目中查找文件"
 
 ==============================================================================
-配置                                             *cheatkey-cn-configuration*
+配置                                          *cheatkey-configuration*
 
-本插件的 |:CheatKeyExplore| 命令需要 |fzf.vim|。
+*g:cheatkey_lang*
+  指定 Vim 内置指令描述所显示的语言。
 
-使用 `vim-plug` 的安装示例:
->
-  Plug 'junegunn/fzf.vim'
-  Plug 'wu9o/vim-cheatkey'
-<
+  - 类型: 字符串
+  - 默认值: 'en'
+  - 支持的值:
+    - 'en': 英文
+    - 'zh': 中文
 
-推荐的快捷键绑定:
->
-  nmap <silent> <leader>? :CheatKeyPanel<CR>
-  nmap <silent> <leader>h :CheatKeyExplore<CR>
-<
-==============================================================================
- vim:tw=78:ts=8:sw=4:sts=4:et:ft:help:norl:
+  示例: 要将语言设置为中文，请将此行添加到您的 .vimrc 文件中: >
+    let g:cheatkey_lang = 'zh'
+
+vim: ft=help:

@@ -1,55 +1,56 @@
-*cheatkey.txt*      For Vim version 8.0 and Neovim      Last change: 2025 Aug 09
-
-CHEATKEY - A dual-mode keybinding cheatsheet and explorer.
-For Chinese documentation, see |cheatkey-cn|.
+*cheatkey.txt*	For vim-cheatkey
 
 ==============================================================================
-CONTENTS                                                 *cheatkey-contents*
+CONTENTS                                      *cheatkey-contents*
 
-  1. Introduction........................................|cheatkey-introduction|
-  2. Commands............................................|cheatkey-commands|
-  3. Configuration.......................................|cheatkey-configuration|
-
-==============================================================================
-INTRODUCTION                                           *cheatkey-introduction*
-
-`vim-cheatkey` provides two modes for viewing your keybindings:
-
-1.  *Cheatsheet Mode*: A static panel showing only the keybindings you
-    explicitly document with |:CheatKey|.
-2.  *Explore Mode*: An interactive |fzf.vim| window to fuzzy-search through
-    ALL active mappings.
+  1. Introduction...................|cheatkey-introduction|
+  2. Commands.......................|cheatkey-commands|
+  3. Configuration..................|cheatkey-configuration|
 
 ==============================================================================
-COMMANDS                                                   *cheatkey-commands*
+INTRODUCTION                                  *cheatkey-introduction*
 
-*:CheatKey*
-  Define a keybinding for the Cheatsheet Panel.
-  Usage: >
-    :CheatKey <mode> <keys> <command> "description"
-<
+vim-cheatkey helps you discover and search for all available key mappings and
+commands within your Vim environment. It presents everything in a unified
+fzf panel, making it easy to find the functionality you need without leaving
+your editor.
+
+For the Chinese version of this document, see |cheatkey.cn.txt|.
+
+==============================================================================
+COMMANDS                                      *cheatkey-commands*
 
 *:CheatKeyPanel*
-  Show the static Cheatsheet Panel.
+  Opens the main fzf search panel. This panel contains a merged list of
+  all keybindings from the built-in cache, the auto-generated cache, and
+  your manual annotations.
 
-*:CheatKeyExplore*
-  Explore ALL mappings using |fzf.vim|. Requires `fzf.vim` to be installed.
+*:CheatKeySync*
+  Scans your current Vim setup for all non-default key mappings and commands,
+  then writes them to the cache file at `~/.cache/vim-cheatkey/generated_cache.txt`.
+  Run this after installing new plugins or changing your keymaps.
+
+*:CheatKey* "<mode> <keys>" "<description>"
+  Manually registers a keybinding with a custom description. This is useful
+  for your own custom mappings that you want to document.
+  The annotation is saved in `~/.cache/vim-cheatkey/manual_cache.txt`.
+
+  Example: >
+    :CheatKey "n <leader>f" "Find files in project"
 
 ==============================================================================
-CONFIGURATION                                           *cheatkey-configuration*
+CONFIGURATION                               *cheatkey-configuration*
 
-This plugin requires |fzf.vim| for the |:CheatKeyExplore| command.
+*g:cheatkey_lang*
+  Specifies the display language for the built-in Vim command descriptions.
 
-Example installation with `vim-plug`:
->
-  Plug 'junegunn/fzf.vim'
-  Plug 'wu9o/vim-cheatkey'
-<
+  - Type: String
+  - Default: 'en'
+  - Supported Values:
+    - 'en': English
+    - 'zh': Chinese
 
-Recommended mappings:
->
-  nmap <silent> <leader>? :CheatKeyPanel<CR>
-  nmap <silent> <leader>h :CheatKeyExplore<CR>
-<
-==============================================================================
- vim:tw=78:ts=8:sw=4:sts=4:et:ft=help:norl:
+  Example: To set the language to Chinese, add this to your .vimrc: >
+    let g:cheatkey_lang = 'zh'
+
+vim: ft=help:
