@@ -1,0 +1,144 @@
+[Vim 内置] (map)  n dd                      -> 删除当前行
+[Vim 内置] (map)  n D                       -> 删除光标至行尾的内容
+[Vim 内置] (map)  n yy                      -> 复制当前行
+[Vim 内置] (map)  n Y                       -> 复制光标至行尾的内容
+[Vim 内置] (map)  n p                       -> 在光标后粘贴
+[Vim 内置] (map)  n P                       -> 在光标前粘贴
+[Vim 内置] (map)  n u                       -> 撤销上一次更改
+[Vim 内置] (map)  n <C-r>                   -> 重做上一次撤销的更改
+[Vim 内置] (map)  n .                       -> 重复上一次的编辑命令
+[Vim 内置] (map)  n x                       -> 删除光标下的字符
+[Vim 内置] (map)  n X                       -> 删除光标前的字符
+[Vim 内置] (map)  n r{char}                 -> 将光标下的字符替换为 {char}
+[Vim 内置] (map)  n R                       -> 进入替换模式（覆盖字符）
+[Vim 内置] (map)  n cw                      -> 修改从光标到单词结尾的内容
+[Vim 内置] (map)  n cc                      -> 修改整行
+[Vim 内置] (map)  n S                       -> 与 cc 相同（修改整行）
+[Vim 内置] (map)  n ciw                     -> 修改单词内部
+[Vim 内置] (map)  n ci"                     -> 修改双引号内的内容
+[Vim 内置] (map)  n ci'                     -> 修改单引号内的内容
+[Vim 内置] (map)  n ci(                     -> 修改括号内的内容
+[Vim 内置] (map)  n ci[                     -> 修改方括号内的内容
+[Vim 内置] (map)  n ci{                     -> 修改花括号内的内容
+[Vim 内置] (map)  n diw                     -> 删除单词内部
+[Vim 内置] (map)  n di"                     -> 删除双引号内的内容
+[Vim 内置] (map)  n di(                     -> 删除括号内的内容
+[Vim 内置] (map)  n yiw                     -> 复制单词内部
+[Vim 内置] (map)  n yi"                     -> 复制双引号内的内容
+[Vim 内置] (map)  n yi(                     -> 复制括号内的内容
+[Vim 内置] (map)  n gUaw                    -> 将整个单词转换为大写
+[Vim 内置] (map)  n guaw                    -> 将整个单词转换为小写
+[Vim 内置] (map)  n h                       -> 光标向左移动
+[Vim 内置] (map)  n j                       -> 光标向下移动
+[Vim 内置] (map)  n k                       -> 光标向上移动
+[Vim 内置] (map)  n l                       -> 光标向右移动
+[Vim 内置] (map)  n w                       -> 移动到下一个单词的开头
+[Vim 内置] (map)  n W                       -> 移动到下一个以空格分隔的单词的开头
+[Vim 内置] (map)  n b                       -> 移动到上一个单词的开头
+[Vim 内置] (map)  n B                       -> 移动到上一个以空格分隔的单词的开头
+[Vim 内置] (map)  n e                       -> 移动到当前单词的结尾
+[Vim 内置] (map)  n E                       -> 移动到当前以空格分隔的单词的结尾
+[Vim 内置] (map)  n 0                       -> 移动到行首
+[Vim 内置] (map)  n ^                       -> 移动到行的第一个非空白字符
+[Vim 内置] (map)  n $                       -> 移动到行尾
+[Vim 内置] (map)  n gg                      -> 移动到文件的第一行
+[Vim 内置] (map)  n G                       -> 移动到文件的最后一行
+[Vim 内置] (map)  n <number>gg              -> 移动到第 <number> 行
+[Vim 内置] (map)  n <number>G               -> 移动到第 <number> 行
+[Vim 内置] (map)  n <C-f>                   -> 向下滚动一整屏
+[Vim 内置] (map)  n <C-b>                   -> 向上滚动一整屏
+[Vim 内置] (map)  n <C-d>                   -> 向下滚动半屏
+[Vim 内置] (map)  n <C-u>                   -> 向上滚动半屏
+[Vim 内置] (map)  n H                       -> 移动光标到屏幕顶部
+[Vim 内置] (map)  n M                       -> 移动光标到屏幕中部
+[Vim 内置] (map)  n L                       -> 移动光标到屏幕底部
+[Vim 内置] (map)  n *                       -> 向前搜索光标下的单词
+[Vim 内置] (map)  n #                       -> 向后搜索光标下的单词
+[Vim 内置] (map)  n /<pattern>              -> 向前搜索 <pattern>
+[Vim 内置] (map)  n ?<pattern>              -> 向后搜索 <pattern>
+[Vim 内置] (map)  n n                       -> 重复上一次搜索（向前）
+[Vim 内置] (map)  n N                       -> 重复上一次搜索（向后）
+[Vim 内置] (map)  n :set hlsearch            -> 高亮所有搜索匹配项
+[Vim 内置] (map)  n :set nohlsearch          -> 禁用搜索高亮
+[Vim 内置] (map)  n :nohlsearch              -> 清除当前搜索高亮
+[Vim 内置] (map)  n :sp <file>              -> 水平分割窗口并打开 <file>
+[Vim 内置] (map)  n :vs <file>              -> 垂直分割窗口并打开 <file>
+[Vim 内置] (map)  n <C-w>s                  -> 水平分割当前窗口
+[Vim 内置] (map)  n <C-w>v                  -> 垂直分割当前窗口
+[Vim 内置] (map)  n <C-w>w                  -> 在所有窗口间循环切换
+[Vim 内置] (map)  n <C-w>h                  -> 移动到左侧窗口
+[Vim 内置] (map)  n <C-w>j                  -> 移动到下方窗口
+[Vim 内置] (map)  n <C-w>k                  -> 移动到上方窗口
+[Vim 内置] (map)  n <C-w>l                  -> 移动到右侧窗口
+[Vim 内置] (map)  n <C-w>q                  -> 关闭当前窗口
+[Vim 内置] (map)  n <C-w>+                  -> 增加当前窗口高度
+[Vim 内置] (map)  n <C-w>-                  -> 减少当前窗口高度
+[Vim 内置] (map)  n <C-w>>                  -> 增加当前窗口宽度
+[Vim 内置] (map)  n <C-w><                  -> 减少当前窗口宽度
+[Vim 内置] (map)  n <C-w>=                  -> 使所有窗口大小相等
+[Vim 内置] (map)  n :tabnew <file>          -> 在新标签页中打开 <file>
+[Vim 内置] (map)  n :tabclose               -> 关闭当前标签页
+[Vim 内置] (map)  n gt                      -> 移动到下一个标签页
+[Vim 内置] (map)  n gT                      -> 移动到上一个标签页
+[Vim 内置] (map)  n <number>gt              -> 移动到第 <number> 个标签页
+[Vim 内置] (map)  n :tabonly                -> 关闭除当前标签页外的所有标签页
+[Vim 内置] (map)  v v                       -> 进入字符可视化模式
+[Vim 内置] (map)  v V                       -> 进入行可视化模式
+[Vim 内置] (map)  v <C-v>                   -> 进入块可视化模式
+[Vim 内置] (map)  v <Esc>                   -> 退出可视化模式
+[Vim 内置] (map)  v d                       -> 删除选中文本
+[Vim 内置] (map)  v y                       -> 复制选中文本
+[Vim 内置] (map)  v p                       -> 用剪贴板内容替换选中文本
+[Vim 内置] (map)  v >                       -> 向右缩进选中文本
+[Vim 内置] (map)  v <                       -> 向左缩进选中文本
+[Vim 内置] (map)  v gv                      -> 重新选择上一次的视觉选区
+[Vim 内置] (map)  v I<text><Esc>            -> 在每个选中行的开头插入 <text> (块模式)
+[Vim 内置] (map)  v A<text><Esc>            -> 在每个选中行的末尾追加 <text> (块模式)
+[Vim 内置] (map)  v gU                      -> 将选中文本转换为大写
+[Vim 内置] (map)  v gu                      -> 将选中文本转换为小写
+[Vim 内置] (map)  i <Esc>                   -> 退出插入模式
+[Vim 内置] (map)  i <C-[>                   -> 退出插入模式
+[Vim 内置] (map)  i <C-w>                   -> 删除前一个单词
+[Vim 内置] (map)  i <C-u>                   -> 删除从光标到行首的内容
+[Vim 内置] (map)  i <C-o>                   -> 临时进入普通模式执行一个命令
+[Vim 内置] (map)  i <C-h>                   -> 删除前一个字符（退格）
+[Vim 内置] (map)  i <C-j>                   -> 插入换行符
+[Vim 内置] (map)  i <C-t>                   -> 缩进当前行
+[Vim 内置] (map)  i <C-d>                   -> 减少当前行缩进
+[Vim 内置] (map)  n "ayy                    -> 将当前行复制到寄存器 'a'
+[Vim 内置] (map)  n "ap                     -> 粘贴寄存器 'a' 的内容
+[Vim 内置] (map)  n "+y                     -> 复制到系统剪贴板
+[Vim 内置] (map)  n "+p                     -> 从系统剪贴板粘贴
+[Vim 内置] (map)  n q{reg}                  -> 开始录制宏到寄存器 {reg}
+[Vim 内置] (map)  n q                       -> 停止录制宏
+[Vim 内置] (map)  n @{reg}                  -> 执行寄存器 {reg} 中的宏
+[Vim 内置] (map)  n @@                      -> 重复上一次的宏
+[Vim 内置] (cmd)  :s/old/new/               -> 将当前行的第一个 'old' 替换为 'new'
+[Vim 内置] (cmd)  :s/old/new/g              -> 将当前行的所有 'old' 替换为 'new'
+[Vim 内置] (cmd)  :%s/old/new/g             -> 将文件中的所有 'old' 替换为 'new'
+[Vim 内置] (cmd)  :%s/old/new/gc            -> 替换时进行确认
+[Vim 内置] (cmd)  :'<,'>s/old/new/g         -> 在视觉选区内进行替换
+[Vim 内置] (cmd)  :w                        -> 保存当前文件
+[Vim 内置] (cmd)  :w <file>                 -> 将当前文件另存为 <file>
+[Vim 内置] (cmd)  :q                        -> 退出当前窗口
+[Vim 内置] (cmd)  :q!                       -> 不保存更改并退出
+[Vim 内置] (cmd)  :wq                       -> 保存并退出
+[Vim 内置] (cmd)  :x                        -> 保存并退出
+[Vim 内置] (cmd)  :e <file>                 -> 打开 <file>
+[Vim 内置] (cmd)  :e!                       -> 从磁盘重新加载当前文件
+[Vim 内置] (cmd)  :bn                       -> 移动到下一个缓冲区
+[Vim 内置] (cmd)  :bp                       -> 移动到上一个缓冲区
+[Vim 内置] (cmd)  :bd                       -> 关闭当前缓冲区
+[Vim 内置] (cmd)  :buffers                  -> 列出所有打开的缓冲区
+[Vim 内置] (cmd)  :b <number>               -> 切换到缓冲区 <number>
+[netrw.vim]    (cmd)  :Explore                  -> 打开文件浏览器
+[netrw.vim]    (cmd)  :Sexplore                 -> 在水平分割窗口中打开文件浏览器
+[netrw.vim]    (cmd)  :Vexplore                 -> 在垂直分割窗口中打开文件浏览器
+[netrw.vim]    (map)  n gx                      -> 打开光标下的文件/URL
+[matchit.vim]  (map)  n %                       -> 在匹配的括号/标签之间跳转
+[matchit.vim]  (map)  v %                       -> 选择匹配括号之间的文本
+[tohtml.vim]   (cmd)  :TOhtml                   -> 将缓冲区内容转换为 HTML
+[zipPlugin.vim](cmd)  :Zip <archive>            -> 从缓冲区创建 zip 压缩文件
+[zipPlugin.vim](cmd)  :Unzip <archive>          -> 从 zip 压缩文件中解压文件
+[getscript.vim](cmd)  :GetLatestVimScripts      -> 下载脚本的最新版本
+[man.vim]      (cmd)  :Man <topic>              -> 打开 <topic> 的手册页

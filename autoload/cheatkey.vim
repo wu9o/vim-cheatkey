@@ -1,16 +1,41 @@
-" autoload/cheatkey.vim
+" autoload/cheatkey.vim"
 " Author: Gemini & wu9o
 " License: MIT
 "
 " This is the core logic file for the vim-cheatkey plugin.
 
 "==============================================================================
-" INITIALIZATION & CONFIGURATION
+" CONFIGURATION & DOCUMENTATION
+"==============================================================================
+"
+" To set the display language for built-in Vim commands, add one of the
+" following lines to your .vimrc:
+"
+" let g:cheatkey_lang = 'en'  " For English (default)
+" let g:cheatkey_lang = 'zh'  " For Chinese
+"
+"==============================================================================
+" INITIALIZATION
 "==============================================================================
 
 let s:cache_dir = expand('~/.cache/vim-cheatkey')
 let s:manual_cache_file = s:cache_dir . '/manual_cache.txt'
 let s:generated_cache_file = s:cache_dir . '/generated_cache.txt'
+
+" Semantic descriptions for known commands and mappings to improve readability.
+let s:cmd_desc_map = {
+      \ 'NERDTreeToggle': 'Toggle file explorer tree',
+      \ 'Gdiffsplit': 'Show git diff in a split',
+      \ 'FZF': 'Launch fzf file search',
+      \ 'Ag': 'Search for pattern in files with Ag'
+      \ }
+
+let s:map_desc_map = {
+      \ 'i <Plug>(fzf-complete-file)': 'FZF file path completion',
+      \ 'n <2-LeftMouse>': 'Handle mouse click in NERDTree',
+      \ 'i <C-W>': 'Delete previous word in insert mode',
+      \ 'v <BS>': 'Delete selection in visual mode'
+      \ }
 
 "==============================================================================
 " PUBLIC FUNCTIONS (Called from commands)
@@ -43,36 +68,73 @@ endfunction
 
 function! cheatkey#sync() abort
   let formatted_lines = []
-  let plugin_list = s:get_plugin_list()
+  let built_in_keys = s:load_built_in_keys()
 
   " === Part 1: Scan Mappings ===
   let all_maps = maplist()
   for map in all_maps
-    let source = s:get_map_source(map)
-    let line = printf("% -20s (map)  %-25s -> %s", source, map.mode . ' ' . map.lhs, map.rhs)
-    call add(formatted_lines, line)
-  endfor
-
-  " === Part 2: Scan Commands ===
-  redir => commands_output
-  silent command
-  redir END
-
-  let command_list = split(commands_output, "\n")
-  for cmd_line in command_list
-    " Use a more robust pattern to capture the command name and its definition
-    let match = matchlist(cmd_line, '^\s*!\?|\?\s\+\(\S\+\)\s\+.*\s\+:\(.*\)')
-    if empty(match)
+    if has_key(built_in_keys, map.lhs)
       continue
     endif
-
-    let cmd_name = match[1]
-    let cmd_def = match[2]
-    let source = s:get_command_source(cmd_name, cmd_def, plugin_list)
-
-    let line = printf("% -20s (cmd)  %-25s -> %s", source, cmd_name, cmd_def)
+    let source = s:get_map_source(map)
+    let lhs_key = map.mode . ' ' . map.lhs
+    " Use semantic description if available, otherwise use the original rhs.
+    let rhs_desc = get(s:map_desc_map, lhs_key, map.rhs)
+    " Clean up escaped characters for better readability.
+    let simplified_rhs = substitute(rhs_desc, '<lt>', '<', 'g')
+    let line = printf("% -20s (map)  %-25s -> %s", source, lhs_key, simplified_rhs)
     call add(formatted_lines, line)
   endfor
+
+  " === Part 2: Scan Commands using a fixed state machine parser ===
+  redir => commands_output
+  silent verbose command
+  redir END
+
+  " Split output into lines, filter out empty lines to avoid confusion
+  let command_lines = filter(split(commands_output, "\n"), '!empty(v:val)')
+  let current_command = {}  " {name, def, source}
+
+  for line in command_lines
+    " Trim leading/trailing whitespace for consistent matching
+    let trimmed_line = trim(line)
+
+    " Case 1: Start of a new command (matches lines with command definition)
+    let match = matchlist(trimmed_line, '^\s*[!|]\?\s\+\(\S\+\)\s*\(.*\)')
+    if !empty(match)
+      " Process previous command if exists
+      if !empty(current_command)
+        let formatted = s:format_command(current_command)
+        if !empty(formatted) && !has_key(built_in_keys, current_command.name)
+          call add(formatted_lines, formatted)
+        endif
+      endif
+
+      " Start a new command object
+      let current_command = {
+            \ 	'name': match[1],
+            \ 	'def': [match[2]],
+            \ 	'source': '[Unknown Command]'
+            \ }
+    " Case 2: Source line (Last set from ...)
+    elseif trimmed_line =~# '^Last set from'
+      if !empty(current_command)
+        let current_command.source = s:parse_source_line(trimmed_line)
+      endif
+
+    " Case 3: Continuation of command definition (multi-line)
+    elseif !empty(current_command)
+      call add(current_command.def, trimmed_line)
+    endif
+  endfor
+
+  " Process the last command in the buffer
+  if !empty(current_command)
+    let formatted = s:format_command(current_command)
+    if !empty(formatted) && !has_key(built_in_keys, current_command.name)
+      call add(formatted_lines, formatted)
+    endif
+  endif
 
   " === Part 3: Save to Cache ===
   try
@@ -80,7 +142,7 @@ function! cheatkey#sync() abort
       call mkdir(s:cache_dir, 'p')
     endif
     call writefile(sort(formatted_lines), s:generated_cache_file)
-    echom "CheatKey: Synced " . len(formatted_lines) . " total mappings and commands to cache."
+    echom "CheatKey: Synced " . len(formatted_lines) . " non-default mappings and commands to cache."
   catch
     echom "CheatKey Error: Could not write to generated cache file: " . s:generated_cache_file
   endtry
@@ -93,12 +155,17 @@ function! cheatkey#show_panel() abort
   endif
 
   let all_lines = []
-  if filereadable(s:generated_cache_file)
-    let all_lines += readfile(s:generated_cache_file)
-  endif
-  if filereadable(s:manual_cache_file)
-    let all_lines += readfile(s:manual_cache_file)
-  endif
+  let file_sources = [
+        \ s:get_built_in_cache_path(),
+        \ s:manual_cache_file,
+        \ s:generated_cache_file
+        \ ]
+
+  for file_path in file_sources
+    if filereadable(file_path)
+      call extend(all_lines, readfile(file_path))
+    endif
+  endfor
 
   if empty(all_lines)
     echom "CheatKey: No keybindings found. Run :CheatKeySync first to build the cache."
@@ -106,9 +173,9 @@ function! cheatkey#show_panel() abort
   endif
 
   call fzf#run({
-        \ 'source': all_lines,
-        \ 'sink': 'echom',
-        \ 'options': '--header="CheatKey Library" --layout=reverse'
+        \ 	'source': all_lines,
+        \ 	'sink': 'echom',
+        \ 	'options': '--header="CheatKey Library" --layout=reverse'
         \ })
 endfunction
 
@@ -116,42 +183,192 @@ endfunction
 " PRIVATE FUNCTIONS (Internal logic)
 "==============================================================================
 
-function! s:get_plugin_list()
-  let plug_dir = expand('~/.dotfiles/vim/plugged')
-  if !isdirectory(plug_dir)
-    return []
+function! s:get_built_in_cache_path() abort
+  let lang = get(g:, 'cheatkey_lang', 'en')
+  " Use :p to ensure the path is always absolute
+  let script_dir = expand('<sfile>:p:h')
+  let lang_file = script_dir . '/built_in_cache_' . lang . '.txt'
+  
+  if filereadable(lang_file)
+    return lang_file
+  else
+    " Fallback to English if the specified language file doesn't exist
+    return script_dir . '/built_in_cache_en.txt'
   endif
-  let plugin_dirs = split(globpath(plug_dir, '*'), '\n')
-  return map(plugin_dirs, 'fnamemodify(v:val, ":t")')
 endfunction
 
-function! s:get_command_source(cmd_name, cmd_def, plugin_list)
-  " Heuristic 1: Check definition for autoload functions (e.g., "call plug#...")
-  let autoload_match = matchlist(a:cmd_def, '\c\vcall\s\+\([a-z0-9_]\+\)#')
-  if !empty(autoload_match)
-    return '[' . autoload_match[1] . '.vim]'
+function! s:load_built_in_keys()
+  let keys = {}
+  let built_in_cache_path = s:get_built_in_cache_path()
+  if !filereadable(built_in_cache_path)
+    return keys
   endif
-
-  " Heuristic 2: Check command name prefix against plugin names
-  for plugin_name in a:plugin_list
-    let clean_plugin_name = substitute(plugin_name, '^vim-', '', '')
-    if stridx(tolower(a:cmd_name), tolower(clean_plugin_name)) == 0
-      return '[' . plugin_name . ']'
+  for line in readfile(built_in_cache_path)
+    let match = matchlist(line, '^\s*\[.*\]\s*(\(map\|cmd\))\s*\(\S\+\)')
+    if !empty(match)
+      let keys[match[2]] = 1
     endif
   endfor
+  return keys
+endfunction
 
-  return '[Command]'
+function! s:parse_source_line(line)
+    let source_path = substitute(a:line, '.*Last set from ', '', '')
+    let plug_patterns = [
+          \ '/plugged/\zs[^/]*',
+          \ '/lazy/\zs[^/]*',
+          \ '/pack/[^/]*\/start\/\zs[^/]*'
+          \ ]
+    for pattern in plug_patterns
+      let plug_match = matchlist(source_path, pattern)
+      if !empty(plug_match)
+        return '[' . plug_match[0] . ']'
+      endif
+    endfor
+    return '[' . fnamemodify(source_path, ':t') . ']'
+endfunction
+
+function! s:format_command(command_obj)
+    if !has_key(a:command_obj, 'name') || empty(a:command_obj.name)
+        return ''
+    endif
+    " Use semantic description if available, otherwise use the original definition.
+    let desc = get(s:cmd_desc_map, a:command_obj.name, join(a:command_obj.def, ' '))
+    return printf("% -20s (cmd)  %-25s -> %s", a:command_obj.source, a:command_obj.name, desc)
 endfunction
 
 function! s:get_map_source(map) abort
-  if !has_key(a:map, 'sid') || a:map.sid <= 0
+  " Step 1: Try to get source from sid (most reliable)
+  if has_key(a:map, 'sid') && a:map.sid > 0
+    try
+      let script_path = scriptnames(a:map.sid)
+      if script_path =~# '\v/(init\.vim|.vimrc)$'
+        return '[User Config]'
+      endif
+      let plug_patterns = [
+            \ '/plugged/\zs[^/]*',
+            \ '/lazy/\zs[^/]*',
+            \ '/pack/[^/]*\/start\/\zs[^/]*'
+            \ ]
+      for pattern in plug_patterns
+        let plug_match = matchlist(script_path, pattern)
+        if !empty(plug_match)
+          return '[' . plug_match[0] . ']'
+        endif
+      endfor
+      return '[' . fnamemodify(script_path, ':t') . ']'
+    catch
+      " Fall through if sid is invalid
+    endtry
+  endif
+
+  " Step 2: Infer from lhs/rhs content with enhanced pattern matching
+
+  " Enhanced: Identify built-in <C-W> for insert mode
+  if a:map.mode ==# 'i' && a:map.lhs ==# '<C-W>' && a:map.rhs ==# '<C-G>u<C-W>'
     return '[Vim Internal]'
   endif
 
-  try
-    let script_path = scriptnames(a:map.sid)
-    return '[' . fnamemodify(script_path, ':t') . ']'
-  catch
-    return '[Unknown Source]'
-  endtry
+  " Enhanced: Identify built-in <BS> for visual mode (delete to black hole register)
+  if a:map.mode ==# 'v' && a:map.lhs ==# '<BS>' && a:map.rhs ==# '"-d'
+    return '[Vim Internal]'
+  endif
+
+  " Enhanced: Identify matchit's text object `a%`
+  if a:map.mode ==# 'x' && a:map.lhs ==# 'a%' && a:map.rhs =~# 'Matchit'
+    return '[matchit.vim]'
+  endif
+
+  " Enhanced: Handle <Plug>(...) with parentheses for fzf, matchit, etc.
+  let plug_with_paren_match = matchlist(a:map.lhs, '<Plug>(\(.*\))')
+  if !empty(plug_with_paren_match)
+    let plug_id = plug_with_paren_match[1]
+    let plug_keywords = {
+          \ 'fzf-': 'fzf.vim',
+          \ 'Matchit': 'matchit.vim'
+          \ }
+    for [keyword, plugin] in items(plug_keywords)
+      if stridx(plug_id, keyword) != -1
+        return '[' . plugin . ']'
+      endif
+    endfor
+  endif
+
+  " Enhanced: Handle specific <Plug> keys like for fugitive
+  if a:map.lhs ==# '<Plug>fugitive:'
+    return '[vim-fugitive]'
+  endif
+
+  " Original logic for rhs namespace checking
+  let rhs = a:map.rhs
+  let namespace_patterns = {
+        \ 'nerdtree#': 'nerdtree',
+        \ 'fzf#': 'fzf.vim',
+        \ 'fugitive#': 'vim-fugitive',
+        \ 'plug#': 'vim-plug',
+        \ 'matchit#': 'matchit.vim',
+        \ 'netrw#': 'netrwPlugin.vim',
+        \ 'dist#man#': 'man.vim'
+        \ }
+  for [ns, plugin] in items(namespace_patterns)
+    if stridx(tolower(rhs), tolower(ns)) != -1
+      return '[' . plugin . ']'
+    endif
+  endfor
+
+  " Original logic for <Plug> keywords in rhs
+  let plug_match = matchlist(rhs, '<Plug>\(\k\+\)')
+  if !empty(plug_match)
+      let plug_id = plug_match[1]
+      let plug_keywords = {
+            \ 'fzf': 'fzf.vim',
+            \ 'Matchit': 'matchit.vim',
+            \ 'Netrw': 'netrwPlugin.vim',
+            \ 'fugitive': 'vim-fugitive'
+            \ }
+      for [keyword, plugin] in items(plug_keywords)
+          if stridx(plug_id, keyword) == 0
+              return '[' . plugin . ']'
+          endif
+      endfor
+  endif
+
+  " Original logic for command names in rhs
+  let cmd_match = matchlist(rhs, ':\s*\(\k\+\)')
+  if !empty(cmd_match)
+      let cmd_name = cmd_match[1]
+      let cmd_plugin_map = {
+            \ 'NERDTreeToggle': 'nerdtree',
+            \ 'NERDTree': 'nerdtree',
+            \ 'FZF': 'fzf.vim'
+            \ }
+      if has_key(cmd_plugin_map, cmd_name)
+          return '[' . cmd_plugin_map[cmd_name] . ']'
+      endif
+  endif
+
+  " Original logic for other built-in patterns
+  if a:map.lhs =~# '<D-[vcx]>'
+    return '[Vim Internal]'
+  endif
+  if a:map.lhs ==# 'gx'
+      return '[netrwPlugin.vim]'
+  endif
+  if a:map.lhs ==# '%' || a:map.lhs ==# '[%' || a:map.lhs ==# ']%' || a:map.lhs ==# 'g%'
+      return '[matchit.vim]'
+  endif
+  let builtin_patterns = [
+        \ '<C-R>\*',
+        \ '<C-G>u<C-U>',
+        \ ':nohlsearch',
+        \ '"\*P', '"\*y', '"\*d'
+        \ ]
+  for pattern in builtin_patterns
+    if stridx(tolower(rhs), tolower(pattern)) != -1
+      return '[Vim Internal]'
+    endif
+  endfor
+
+  " Final fallback
+  return '[Unknown Source]'
 endfunction
