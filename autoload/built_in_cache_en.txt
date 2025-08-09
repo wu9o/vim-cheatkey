@@ -1,0 +1,144 @@
+[Vim Internal] (map)  n dd                      -> Delete current line
+[Vim Internal] (map)  n D                       -> Delete from cursor to end of line
+[Vim Internal] (map)  n yy                      -> Yank (copy) current line
+[Vim Internal] (map)  n Y                       -> Yank from cursor to end of line
+[Vim Internal] (map)  n p                       -> Paste after cursor
+[Vim Internal] (map)  n P                       -> Paste before cursor
+[Vim Internal] (map)  n u                       -> Undo last change
+[Vim Internal] (map)  n <C-r>                   -> Redo last undone change
+[Vim Internal] (map)  n .                       -> Repeat last edit command
+[Vim Internal] (map)  n x                       -> Delete character under cursor
+[Vim Internal] (map)  n X                       -> Delete character before cursor
+[Vim Internal] (map)  n r{char}                 -> Replace character under cursor with {char}
+[Vim Internal] (map)  n R                       -> Enter replace mode (overwrite characters)
+[Vim Internal] (map)  n cw                      -> Change from cursor to end of word
+[Vim Internal] (map)  n cc                      -> Change entire line
+[Vim Internal] (map)  n S                       -> Same as cc (change entire line)
+[Vim Internal] (map)  n ciw                     -> Change inside word
+[Vim Internal] (map)  n ci"                     -> Change inside double quotes
+[Vim Internal] (map)  n ci'                     -> Change inside single quotes
+[Vim Internal] (map)  n ci(                     -> Change inside parentheses
+[Vim Internal] (map)  n ci[                     -> Change inside square brackets
+[Vim Internal] (map)  n ci{                     -> Change inside curly braces
+[Vim Internal] (map)  n diw                     -> Delete inside word
+[Vim Internal] (map)  n di"                     -> Delete inside double quotes
+[Vim Internal] (map)  n di(                     -> Delete inside parentheses
+[Vim Internal] (map)  n yiw                     -> Yank inside word
+[Vim Internal] (map)  n yi"                     -> Yank inside double quotes
+[Vim Internal] (map)  n yi(                     -> Yank inside parentheses
+[Vim Internal] (map)  n gUaw                    -> Uppercase entire word
+[Vim Internal] (map)  n guaw                    -> Lowercase entire word
+[Vim Internal] (map)  n h                       -> Move cursor left
+[Vim Internal] (map)  n j                       -> Move cursor down
+[Vim Internal] (map)  n k                       -> Move cursor up
+[Vim Internal] (map)  n l                       -> Move cursor right
+[Vim Internal] (map)  n w                       -> Move to start of next word
+[Vim Internal] (map)  n W                       -> Move to start of next WORD (whitespace-separated)
+[Vim Internal] (map)  n b                       -> Move to start of previous word
+[Vim Internal] (map)  n B                       -> Move to start of previous WORD
+[Vim Internal] (map)  n e                       -> Move to end of current word
+[Vim Internal] (map)  n E                       -> Move to end of current WORD
+[Vim Internal] (map)  n 0                       -> Move to start of line
+[Vim Internal] (map)  n ^                       -> Move to first non-whitespace character of line
+[Vim Internal] (map)  n $                       -> Move to end of line
+[Vim Internal] (map)  n gg                      -> Move to first line of file
+[Vim Internal] (map)  n G                       -> Move to last line of file
+[Vim Internal] (map)  n <number>gg              -> Move to line <number>
+[Vim Internal] (map)  n <number>G               -> Move to line <number>
+[Vim Internal] (map)  n <C-f>                   -> Scroll forward one full screen
+[Vim Internal] (map)  n <C-b>                   -> Scroll backward one full screen
+[Vim Internal] (map)  n <C-d>                   -> Scroll down half a screen
+[Vim Internal] (map)  n <C-u>                   -> Scroll up half a screen
+[Vim Internal] (map)  n H                       -> Move cursor to top of screen
+[Vim Internal] (map)  n M                       -> Move cursor to middle of screen
+[Vim Internal] (map)  n L                       -> Move cursor to bottom of screen
+[Vim Internal] (map)  n *                       -> Search for word under cursor (forward)
+[Vim Internal] (map)  n #                       -> Search for word under cursor (backward)
+[Vim Internal] (map)  n /<pattern>              -> Search forward for <pattern>
+[Vim Internal] (map)  n ?<pattern>              -> Search backward for <pattern>
+[Vim Internal] (map)  n n                       -> Repeat last search (forward)
+[Vim Internal] (map)  n N                       -> Repeat last search (backward)
+[Vim Internal] (map)  n :set hlsearch            -> Highlight all search matches
+[Vim Internal] (map)  n :set nohlsearch          -> Disable search highlighting
+[Vim Internal] (map)  n :nohlsearch              -> Clear current search highlighting
+[Vim Internal] (map)  n :sp <file>              -> Split window horizontally and open <file>
+[Vim Internal] (map)  n :vs <file>              -> Split window vertically and open <file>
+[Vim Internal] (map)  n <C-w>s                  -> Split current window horizontally
+[Vim Internal] (map)  n <C-w>v                  -> Split current window vertically
+[Vim Internal] (map)  n <C-w>w                  -> Cycle through all windows
+[Vim Internal] (map)  n <C-w>h                  -> Move to window to the left
+[Vim Internal] (map)  n <C-w>j                  -> Move to window below
+[Vim Internal] (map)  n <C-w>k                  -> Move to window above
+[Vim Internal] (map)  n <C-w>l                  -> Move to window to the right
+[Vim Internal] (map)  n <C-w>q                  -> Close current window
+[Vim Internal] (map)  n <C-w>+                  -> Increase current window height
+[Vim Internal] (map)  n <C-w>-                  -> Decrease current window height
+[Vim Internal] (map)  n <C-w>>                  -> Increase current window width
+[Vim Internal] (map)  n <C-w><                  -> Decrease current window width
+[Vim Internal] (map)  n <C-w>=                  -> Equalize all window sizes
+[Vim Internal] (map)  n :tabnew <file>          -> Open <file> in new tab
+[Vim Internal] (map)  n :tabclose               -> Close current tab
+[Vim Internal] (map)  n gt                      -> Move to next tab
+[Vim Internal] (map)  n gT                      -> Move to previous tab
+[Vim Internal] (map)  n <number>gt              -> Move to tab <number>
+[Vim Internal] (map)  n :tabonly                -> Close all tabs except current one
+[Vim Internal] (map)  v v                       -> Enter character-wise visual mode
+[Vim Internal] (map)  v V                       -> Enter line-wise visual mode
+[Vim Internal] (map)  v <C-v>                   -> Enter block-wise visual mode
+[Vim Internal] (map)  v <Esc>                   -> Exit visual mode
+[Vim Internal] (map)  v d                       -> Delete selected text
+[Vim Internal] (map)  v y                       -> Yank (copy) selected text
+[Vim Internal] (map)  v p                       -> Replace selected text with clipboard content
+[Vim Internal] (map)  v >                       -> Indent selected text to the right
+[Vim Internal] (map)  v <                       -> Indent selected text to the left
+[Vim Internal] (map)  v gv                      -> Re-select last visual selection
+[Vim Internal] (map)  v I<text><Esc>            -> Insert <text> at start of each selected line (block mode)
+[Vim Internal] (map)  v A<text><Esc>            -> Append <text> at end of each selected line (block mode)
+[Vim Internal] (map)  v gU                      -> Convert selected text to uppercase
+[Vim Internal] (map)  v gu                      -> Convert selected text to lowercase
+[Vim Internal] (map)  i <Esc>                   -> Exit insert mode
+[Vim Internal] (map)  i <C-[>                   -> Exit insert mode
+[Vim Internal] (map)  i <C-w>                   -> Delete previous word
+[Vim Internal] (map)  i <C-u>                   -> Delete from cursor to start of line
+[Vim Internal] (map)  i <C-o>                   -> Enter normal mode for one command
+[Vim Internal] (map)  i <C-h>                   -> Delete previous character (backspace)
+[Vim Internal] (map)  i <C-j>                   -> Insert newline
+[Vim Internal] (map)  i <C-t>                   -> Indent current line
+[Vim Internal] (map)  i <C-d>                   -> Decrease indent of current line
+[Vim Internal] (map)  n "ayy                    -> Yank current line to register 'a'
+[Vim Internal] (map)  n "ap                     -> Paste content from register 'a'
+[Vim Internal] (map)  n "+y                     -> Yank to system clipboard (copy)
+[Vim Internal] (map)  n "+p                     -> Paste from system clipboard
+[Vim Internal] (map)  n q{reg}                  -> Start recording macro to register {reg}
+[Vim Internal] (map)  n q                       -> Stop macro recording
+[Vim Internal] (map)  n @{reg}                  -> Execute macro from register {reg}
+[Vim Internal] (map)  n @@                      -> Repeat last macro
+[Vim Internal] (cmd)  :s/old/new/               -> Replace first 'old' with 'new' on current line
+[Vim Internal] (cmd)  :s/old/new/g              -> Replace all 'old' with 'new' on current line
+[Vim Internal] (cmd)  :%s/old/new/g             -> Replace all 'old' with 'new' in the file
+[Vim Internal] (cmd)  :%s/old/new/gc            -> Replace with confirmation
+[Vim Internal] (cmd)  :'<,'>s/old/new/g         -> Replace in visually selected lines
+[Vim Internal] (cmd)  :w                        -> Save current file
+[Vim Internal] (cmd)  :w <file>                 -> Save current file as <file>
+[Vim Internal] (cmd)  :q                        -> Quit current window
+[Vim Internal] (cmd)  :q!                       -> Quit without saving changes
+[Vim Internal] (cmd)  :wq                       -> Save and quit
+[Vim Internal] (cmd)  :x                        -> Save and quit
+[Vim Internal] (cmd)  :e <file>                 -> Open <file>
+[Vim Internal] (cmd)  :e!                       -> Reload current file from disk
+[Vim Internal] (cmd)  :bn                       -> Move to next buffer
+[Vim Internal] (cmd)  :bp                       -> Move to previous buffer
+[Vim Internal] (cmd)  :bd                       -> Close current buffer
+[Vim Internal] (cmd)  :buffers                  -> List all open buffers
+[Vim Internal] (cmd)  :b <number>               -> Switch to buffer <number>
+[netrw.vim]    (cmd)  :Explore                  -> Open file explorer
+[netrw.vim]    (cmd)  :Sexplore                 -> Open file explorer in horizontal split
+[netrw.vim]    (cmd)  :Vexplore                 -> Open file explorer in vertical split
+[netrw.vim]    (map)  n gx                      -> Open file/URL under cursor
+[matchit.vim]  (map)  n %                       -> Jump between matching brackets/tags
+[matchit.vim]  (map)  v %                       -> Select text between matching brackets
+[tohtml.vim]   (cmd)  :TOhtml                   -> Convert buffer to HTML
+[zipPlugin.vim](cmd)  :Zip <archive>            -> Create zip archive from buffer
+[zipPlugin.vim](cmd)  :Unzip <archive>          -> Extract files from zip archive
+[getscript.vim](cmd)  :GetLatestVimScripts      -> Download latest versions of scripts
+[man.vim]      (cmd)  :Man <topic>              -> Open man page for <topic>
