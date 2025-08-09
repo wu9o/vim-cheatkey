@@ -1,6 +1,6 @@
 *cheatkey.txt*      For Vim version 8.0 and Neovim      Last change: 2025 Aug 09
 
-CHEATKEY - An intelligent cheatsheet for your keybindings
+CHEATKEY - A dual-mode keybinding cheatsheet and explorer.
 For Chinese documentation, see |cheatkey-cn|.
 
 ==============================================================================
@@ -13,55 +13,43 @@ CONTENTS                                                 *cheatkey-contents*
 ==============================================================================
 INTRODUCTION                                           *cheatkey-introduction*
 
-`vim-cheatkey` is an intelligent Vim plugin. It provides a two-tier system
-for describing your keybindings: a zero-configuration local analyzer, and an
-optional, AI-powered analyzer for more accurate descriptions.
+`vim-cheatkey` provides two modes for viewing your keybindings:
+
+1.  *Cheatsheet Mode*: A static panel showing only the keybindings you
+    explicitly document with |:CheatKey|.
+2.  *Explore Mode*: An interactive |fzf.vim| window to fuzzy-search through
+    ALL active mappings.
 
 ==============================================================================
 COMMANDS                                                   *cheatkey-commands*
 
 *:CheatKey*
-  Define a keybinding with a manual description.
+  Define a keybinding for the Cheatsheet Panel.
+  Usage: >
+    :CheatKey <mode> <keys> <command> "description"
+<
 
 *:CheatKeyPanel*
-  Show the keybinding cheatsheet panel.
+  Show the static Cheatsheet Panel.
 
-*:CheatKeySync*
-  Asynchronously scan all keymaps and generate descriptions.
+*:CheatKeyExplore*
+  Explore ALL mappings using |fzf.vim|. Requires `fzf.vim` to be installed.
 
 ==============================================================================
 CONFIGURATION                                           *cheatkey-configuration*
 
-------------------------------------------------------------------------------
-GENERAL CONFIGURATION                                *cheatkey-general-config*
+This plugin requires |fzf.vim| for the |:CheatKeyExplore| command.
 
-*g:cheatkey_language*
-  (Optional) The language for descriptions. Default: `'en'`.
-  This affects both AI generation and future localizations.
-  Example: >
-    let g:cheatkey_language = 'en'
+Example installation with `vim-plug`:
+>
+  Plug 'junegunn/fzf.vim'
+  Plug 'wu9o/vim-cheatkey'
 <
 
-------------------------------------------------------------------------------
-AI CONFIGURATION (OPTIONAL)                              *cheatkey-ai-config*
-
-To enable AI features, you must set at least |g:cheatkey_api_key_command|.
-
-*g:cheatkey_ai_provider*
-  (Optional) The AI provider. Default: `'gemini'`.
-
-*g:cheatkey_model_name*
-  (Optional) The specific model name.
-
-*g:cheatkey_api_key_command*
-  (Required for AI) A shell command that outputs your API key.
-  Example: >
-    let g:cheatkey_api_key_command = 'echo $GEMINI_API_KEY'
-<
-
-*g:cheatkey_prompt_template*
-  (Optional) The prompt template for the AI. Must include `{rhs}` and
-  `{language}` placeholders.
+Recommended mappings:
+>
+  nmap <silent> <leader>? :CheatKeyPanel<CR>
+  nmap <silent> <leader>h :CheatKeyExplore<CR>
 <
 ==============================================================================
  vim:tw=78:ts=8:sw=4:sts=4:et:ft=help:norl:
