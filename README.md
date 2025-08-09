@@ -1,60 +1,73 @@
-[中文版](README.zh.md)
-
 # vim-cheatkey
 
-A Vim plugin that provides two modes for viewing your keybindings: a clean, curated cheatsheet and a powerful fuzzy-search explorer.
+[中文文档](README.zh.md)
 
-## The Problem
+A Vim plugin to discover and display available keybindings and commands in a searchable fzf panel, helping you master your Vim environment.
 
-Vim's power lies in its customizability. However, it's easy to forget your own custom mappings or the mappings provided by plugins. `vim-cheatkey` solves this by providing two distinct ways to view your keybindings.
+## Features
 
-## Core Features
+- **Discover Mappings**: Automatically scans and parses all active key mappings.
+- **Discover Commands**: Scans and lists all available user-defined and plugin commands.
+- **Manual Annotations**: Register your own keybindings with custom descriptions using the `:CheatKey` command.
+- **Multi-Language Support**: Displays built-in Vim command documentation in your preferred language (supports English and Chinese).
+- **fzf Integration**: Provides a fast and intuitive fuzzy-search panel to find any keybinding instantly.
 
-1.  **Cheatsheet Mode**: A static panel that displays only the keybindings you have explicitly documented using the `:CheatKey` command. This is your personal, noise-free cheatsheet.
-2.  **Explore Mode**: An interactive fuzzy-search window, powered by `fzf.vim`, that allows you to explore and discover **all** mappings currently active in your Vim session, complete with information about their source.
-3.  **Simple & Reliable**: By separating the curated cheatsheet from the comprehensive explorer, this plugin provides a robust and predictable experience.
+## Requirements
 
-## User Interface & Commands
+- [fzf](https://github.com/junegunn/fzf): A command-line fuzzy finder.
+- [fzf.vim](https://github.com/junegunn/fzf.vim): Vim plugin for fzf.
 
-### 1. Define a Keybinding (for the Cheatsheet)
+## Installation
 
-`CheatKey <mode> <keys> <command> "description"`
-- **Description**: Manually define a keybinding and its description. This is the **only** way to add entries to the Cheatsheet Panel.
-- **Example**: `CheatKey n <leader>s :w<CR> "Save current file"`
+Install using your favorite plugin manager.
 
-### 2. View the Cheatsheet Panel
+**vim-plug**:
+```vim
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
+Plug 'wujiuli/vim-cheatkey'
+```
 
-`:CheatKeyPanel`
-- **Description**: Opens a clean panel displaying only the keybindings you have defined with `:CheatKey`.
-- **Recommended mapping**: `nmap <silent> <leader>? :CheatKeyPanel<CR>`
+## Usage
 
-### 3. Explore All Mappings
+1.  **`:CheatKeyPanel`**
+    - Opens the main fzf panel, displaying all discovered and registered keybindings.
 
-`:CheatKeyExplore`
-- **Description**: Opens an FZF window to fuzzy-search through **all** available mappings from all sources (Vim, plugins, your vimrc).
-- **Requires**: `fzf.vim` plugin to be installed.
-- **Recommended mapping**: `nmap <silent> <leader>h :CheatKeyExplore<CR>`
+2.  **`:CheatKeySync`**
+    - Scans your current Vim environment for all non-default mappings and commands and updates the cache. Run this command whenever you install a new plugin or change your keybindings.
+
+3.  **`:CheatKey "<mode> <keys>" "<description>"`**
+    - Manually registers a keybinding with a custom description.
+    - Example: `CheatKey "n <leader>f" "Find files"`
 
 ## Configuration
 
-### 1. Installation (Example with `vim-plug`)
-```vim
-" fzf.vim is required for the Explore mode
-Plug 'junegunn/fzf.vim'
+### Language Setting
 
-Plug 'wu9o/vim-cheatkey'
+To display the descriptions for Vim's built-in commands in your preferred language, add the following line to your `.vimrc` or `init.vim`:
+
+```vim
+" Use 'en' for English (default) or 'zh' for Chinese
+let g:cheatkey_lang = 'zh'
 ```
 
-### 2. General Configuration
-```vim
-" (Optional) Set the display language for the UI (currently no effect, for future use).
-let g:cheatkey_language = 'en'
-```
+## How It Works
 
-## Technical Implementation Outline
+`vim-cheatkey` intelligently gathers keybinding information from three distinct sources and merges them into a single, searchable list.
 
-- **`:CheatKeyPanel`**: Reads from a simple internal registry populated only by the `:CheatKey` command.
-- **`:CheatKeyExplore`**:
-  - Calls Vim's `maplist()` function to get all mappings.
-  - Formats the list with source information (derived from the mapping's script ID).
-  - Pipes the formatted list into `fzf#run()` for interactive searching.
+1.  **Built-in Command Cache (`autoload/built_in_cache_xx.txt`)**
+    - This is a pre-generated list of common, default Vim commands and mappings, shipped with the plugin.
+    - The file corresponding to your `g:cheatkey_lang` setting is loaded. This is how multi-language support is achieved.
+
+2.  **Generated Cache (`~/.cache/vim-cheatkey/generated_cache.txt`)**
+    - This file is created or updated when you run `:CheatKeySync`.
+    - The plugin scans the output of Vim's `:map` and `:command` to discover all currently active, non-default keybindings from your configuration and other plugins.
+
+3.  **Manual Cache (`~/.cache/vim-cheatkey/manual_cache.txt`)**
+    - This file stores the custom keybinding annotations you create with the `:CheatKey` command.
+
+When you run `:CheatKeyPanel`, the plugin reads from these three sources, combines them, and pipes the result into the fzf panel for you to search.
+
+## License
+
+MIT

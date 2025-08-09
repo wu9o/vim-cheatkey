@@ -1,8 +1,16 @@
-" autoload/cheatkey.vim"
+"autoload/cheatkey.vim"
 " Author: Gemini & wu9o
 " License: MIT
 "
 " This is the core logic file for the vim-cheatkey plugin.
+
+"==============================================================================
+" SCRIPT-LEVEL VARIABLES
+"==============================================================================
+
+" Cache the absolute path to this script's directory when the script is sourced.
+" This is the most robust way to avoid context issues with <sfile>.
+let s:script_dir = expand('<sfile>:p:h')
 
 "==============================================================================
 " CONFIGURATION & DOCUMENTATION
@@ -42,10 +50,12 @@ let s:map_desc_map = {
 "==============================================================================
 
 function! cheatkey#register(args) abort
-  let desc_match = matchlist(a:args, '\v"(.*)"\s*$')
+  let desc_match = matchlist(a:args, '\v"(.*)"\s*
+)
   if empty(desc_match) | echom "CheatKey Error: Description must be in quotes." | return | endif
   let description = desc_match[1]
-  let command_part = substitute(a:args, '\v\s*".*"\s*$', '', '')
+  let command_part = substitute(a:args, '\v\s*".*"\s*
+, '', '')
   let parts = split(command_part, '\s\+')
   if len(parts) < 3 | echom "CheatKey Error: Invalid format." | return | endif
   let [mode, keys; command_list] = parts
@@ -174,7 +184,7 @@ function! cheatkey#show_panel() abort
 
   call fzf#run({
         \ 	'source': all_lines,
-        \ 	'sink': 'echom',
+        \ 	'sink': function('s:safe_echo'),
         \ 	'options': '--header="CheatKey Library" --layout=reverse'
         \ })
 endfunction
@@ -183,17 +193,19 @@ endfunction
 " PRIVATE FUNCTIONS (Internal logic)
 "==============================================================================
 
+function! s:safe_echo(line) abort
+  execute 'echom string(a:line)'
+endfunction
+
 function! s:get_built_in_cache_path() abort
   let lang = get(g:, 'cheatkey_lang', 'en')
-  " Use :p to ensure the path is always absolute
-  let script_dir = expand('<sfile>:p:h')
-  let lang_file = script_dir . '/built_in_cache_' . lang . '.txt'
+  let lang_file = s:script_dir . '/built_in_cache_' . lang . '.txt'
   
   if filereadable(lang_file)
     return lang_file
   else
     " Fallback to English if the specified language file doesn't exist
-    return script_dir . '/built_in_cache_en.txt'
+    return s:script_dir . '/built_in_cache_en.txt'
   endif
 endfunction
 
@@ -242,7 +254,8 @@ function! s:get_map_source(map) abort
   if has_key(a:map, 'sid') && a:map.sid > 0
     try
       let script_path = scriptnames(a:map.sid)
-      if script_path =~# '\v/(init\.vim|.vimrc)$'
+      if script_path =~# '\v/(init\.vim|\.vimrc)
+
         return '[User Config]'
       endif
       let plug_patterns = [
@@ -280,12 +293,12 @@ function! s:get_map_source(map) abort
   endif
 
   " Enhanced: Handle <Plug>(...) with parentheses for fzf, matchit, etc.
-  let plug_with_paren_match = matchlist(a:map.lhs, '<Plug>(\(.*\))')
+  let plug_with_paren_match = matchlist(a:map.lhs, '<Plug>\(\(.*\)\)')
   if !empty(plug_with_paren_match)
     let plug_id = plug_with_paren_match[1]
     let plug_keywords = {
-          \ 'fzf-': 'fzf.vim',
-          \ 'Matchit': 'matchit.vim'
+          \ 	'fzf-': 'fzf.vim',
+          \ 	'Matchit': 'matchit.vim'
           \ }
     for [keyword, plugin] in items(plug_keywords)
       if stridx(plug_id, keyword) != -1
@@ -302,13 +315,13 @@ function! s:get_map_source(map) abort
   " Original logic for rhs namespace checking
   let rhs = a:map.rhs
   let namespace_patterns = {
-        \ 'nerdtree#': 'nerdtree',
-        \ 'fzf#': 'fzf.vim',
-        \ 'fugitive#': 'vim-fugitive',
-        \ 'plug#': 'vim-plug',
-        \ 'matchit#': 'matchit.vim',
-        \ 'netrw#': 'netrwPlugin.vim',
-        \ 'dist#man#': 'man.vim'
+        \ 	'nerdtree#': 'nerdtree',
+        \ 	'fzf#': 'fzf.vim',
+        \ 	'fugitive#': 'vim-fugitive',
+        \ 	'plug#': 'vim-plug',
+        \ 	'matchit#': 'matchit.vim',
+        \ 	'netrw#': 'netrwPlugin.vim',
+        \ 	'dist#man#': 'man.vim'
         \ }
   for [ns, plugin] in items(namespace_patterns)
     if stridx(tolower(rhs), tolower(ns)) != -1
@@ -321,10 +334,10 @@ function! s:get_map_source(map) abort
   if !empty(plug_match)
       let plug_id = plug_match[1]
       let plug_keywords = {
-            \ 'fzf': 'fzf.vim',
-            \ 'Matchit': 'matchit.vim',
-            \ 'Netrw': 'netrwPlugin.vim',
-            \ 'fugitive': 'vim-fugitive'
+            \ 	'fzf': 'fzf.vim',
+            \ 	'Matchit': 'matchit.vim',
+            \ 	'Netrw': 'netrwPlugin.vim',
+            \ 	'fugitive': 'vim-fugitive'
             \ }
       for [keyword, plugin] in items(plug_keywords)
           if stridx(plug_id, keyword) == 0
@@ -338,9 +351,9 @@ function! s:get_map_source(map) abort
   if !empty(cmd_match)
       let cmd_name = cmd_match[1]
       let cmd_plugin_map = {
-            \ 'NERDTreeToggle': 'nerdtree',
-            \ 'NERDTree': 'nerdtree',
-            \ 'FZF': 'fzf.vim'
+            \ 	'NERDTreeToggle': 'nerdtree',
+            \ 	'NERDTree': 'nerdtree',
+            \ 	'FZF': 'fzf.vim'
             \ }
       if has_key(cmd_plugin_map, cmd_name)
           return '[' . cmd_plugin_map[cmd_name] . ']'
