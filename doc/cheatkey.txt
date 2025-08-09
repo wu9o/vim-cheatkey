@@ -1,0 +1,55 @@
+*cheatkey.txt*      For Vim version 8.0 and Neovim      Last change: 2025 Aug 09
+
+CHEATKEY - A lightweight cheatsheet for your keybindings
+
+==============================================================================
+CONTENTS                                                 *cheatkey-contents*
+
+  1. Introduction........................................|cheatkey-introduction|
+  2. Commands............................................|cheatkey-commands|
+  3. Configuration.......................................|cheatkey-configuration|
+
+==============================================================================
+INTRODUCTION                                           *cheatkey-introduction*
+
+`vim-cheatkey` is a lightweight Vim plugin that allows users to add descriptions
+to their keybindings and view them anytime in an interactive panel, aiding
+memory and discovery.
+
+==============================================================================
+COMMANDS                                                   *cheatkey-commands*
+
+*:CheatKey*
+  Define a keybinding with a description.
+  Usage: >
+    :CheatKey <mode> <keys> <command> "description"
+<
+  Example: >
+    :CheatKey n <leader>s :w<CR> "Save current file"
+<
+
+*:CheatKeyPanel*
+  Show the keybinding cheatsheet panel.
+  Usage: >
+    :CheatKeyPanel
+<
+
+==============================================================================
+CONFIGURATION                                           *cheatkey-configuration*
+
+To use this plugin, define your keybindings using the |:CheatKey| command in
+your `.vimrc` file.
+
+It is also recommended to map the |:CheatKeyPanel| command to a keybinding for
+easy access.
+
+Example: >
+  " In your .vimrc
+  nmap <silent> <leader>? :CheatKeyPanel<CR>
+
+  CheatKey n <F5> :NERDTreeToggle<CR> "Toggle file browser"
+  CheatKey n <leader>s :w<CR> "Save current file"
+<
+
+==============================================================================
+ vim:tw=78:ts=8:sw=4:sts=4:et:ft=help:norl:
