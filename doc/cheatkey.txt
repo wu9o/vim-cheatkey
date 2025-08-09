@@ -15,7 +15,7 @@ INTRODUCTION                                           *cheatkey-introduction*
 `vim-cheatkey` is an intelligent Vim plugin. It not only allows you to
 manually add descriptions to your keybindings but also automatically discovers
 all keymaps in your environment and uses AI to generate accurate descriptions
-for them.
+for them in your preferred language.
 
 ==============================================================================
 COMMANDS                                                   *cheatkey-commands*
@@ -37,7 +37,7 @@ COMMANDS                                                   *cheatkey-commands*
 
 *:CheatKeySync*
   Asynchronously scan all keymaps and request AI-generated descriptions for
-  those without one.
+  those without one, in the configured language.
   Usage: >
     :CheatKeySync
 <
@@ -45,8 +45,14 @@ COMMANDS                                                   *cheatkey-commands*
 ==============================================================================
 CONFIGURATION                                           *cheatkey-configuration*
 
-It is recommended to map the |:CheatKeyPanel| command to a keybinding for
-easy access. Example: `nmap <silent> <leader>? :CheatKeyPanel<CR>`
+It is recommended to map |:CheatKeyPanel| to a keybinding for easy access.
+Example: `nmap <silent> <leader>? :CheatKeyPanel<CR>`
+
+*g:cheatkey_language*
+  (Optional) The language for AI-generated descriptions. Default: `'en'`.
+  Example: >
+    let g:cheatkey_language = 'zh'
+<
 
 *g:cheatkey_ai_provider*
   (Optional) The AI provider to use. Default: `'gemini'`.
@@ -67,10 +73,10 @@ easy access. Example: `nmap <silent> <leader>? :CheatKeyPanel<CR>`
 <
 
 *g:cheatkey_prompt_template*
-  (Optional) The prompt template for the AI. Must include `{rhs}`.
-  Default: 'You are a Vim expert... {rhs} ...'
+  (Optional) The prompt template for the AI. Must include `{rhs}` and
+  `{language}` placeholders.
   Example: >
-    let g:cheatkey_prompt_template = 'As a Vim expert, describe the function of this command in Chinese within 10 characters: "{rhs}".'
+    let g:cheatkey_prompt_template = 'As a Vim expert, describe the function of this command in {language}: "{rhs}".'
 <
 
 ==============================================================================
