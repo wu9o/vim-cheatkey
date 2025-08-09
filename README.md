@@ -1,4 +1,3 @@
-
 [中文版](README.zh.md)
 
 # vim-cheatkey
@@ -12,11 +11,6 @@ Vim's power lies in its customizability. However, as configurations grow and plu
 ## Core Features
 
 1.  **Manual Keymap Documentation**: Provides a `:CheatKey` command to attach a description to a keybinding, which always takes the highest priority.
-2.  **Auto-Discovery & Sync**: Provides a `:CheatKeySync` command that scans your entire Vim environment (built-in, plugins, custom maps) to find undocumented keybindings.
-3.  **AI-Powered Descriptions**:
-    *   ## Core Features
-
-1.  **Manual Keymap Documentation**: Provides a `:CheatKey` command to attach a description to a keybinding, which always takes the highest priority.
 2.  **Auto-Discovery & Sync**: Provides a `:CheatKeySync` command that scans your entire Vim environment to find all keybindings.
 3.  **Two-Tier Description Generation**:
     *   **Local Fallback Analyzer (Default)**: An offline, rule-based engine that provides good-enough descriptions for common Vim commands and `<Plug>` mappings. Works out-of-the-box with zero configuration.
@@ -25,7 +19,16 @@ Vim's power lies in its customizability. However, as configurations grow and plu
 5.  **Lightweight & Asynchronous**: The AI sync feature runs entirely asynchronously, ensuring no freezing of your Vim editor.
 
 ## User Interface & Commands
-...
+
+### 1. Define a Keybinding (Manual)
+`CheatKey <mode> <keys> <command> "description"`
+
+### 2. Sync Keybindings (Automatic)
+`:CheatKeySync`
+
+### 3. View the Cheatsheet Panel
+`:CheatKeyPanel`
+
 ## Configuration
 
 Configure the plugin in your `.vimrc` file:
@@ -35,14 +38,20 @@ Configure the plugin in your `.vimrc` file:
 Plug 'wu9o/vim-cheatkey'
 ```
 
-### 2. AI Service Configuration (Optional)
+### 2. General Configuration
+```vim
+" (Optional) Set the display language for descriptions. Defaults to 'en'.
+" This affects both the AI-generated descriptions and potentially future
+" localizations of the plugin's UI and local analyzer.
+" Examples: 'en', 'zh', 'ja', 'es'.
+let g:cheatkey_language = 'en'
+```
 
-If you wish to use the AI-powered description feature, configure the following. Otherwise, the plugin will use its built-in local analyzer.
+### 3. AI Service Configuration (Optional)
+
+If you wish to use the AI-powered description feature, configure the following.
 
 ```vim
-" (Optional) Set your desired language. Defaults to 'en' (English).
-let g:cheatkey_language = 'en'
-
 " (Optional) Set the AI provider. Defaults to 'gemini'.
 let g:cheatkey_ai_provider = 'gemini'
 
@@ -57,86 +66,10 @@ let g:cheatkey_prompt_template = 'You are a Vim expert. A keybinding in Vim exec
 ```
 
 ## Technical Implementation Outline
-...
-- `cheatkey#sync()`:
-  - Uses `maplist()` to get all mappings.
-  - Filters for "orphan" keymaps to process.
-  - **Decision**: Checks if `g:cheatkey_api_key_command` is configured.
-    - **If YES**: Asynchronously calls the AI API via `job_start()`.
-    - **If NO**: Calls the local, rule-based analyzer function.
-  - Updates the registry with the generated description.
-...
 
-    *   **Multi-language Support**: Generates descriptions in the language of your choice (defaults to English).
-    *   **Customizable Prompts**: Allows you to define your own prompt template to guide the AI's output style.
-    *   Supports various AI providers (e.g., Google Gemini, OpenAI).
-4.  **Cheatsheet Panel**: Provides a `:CheatKeyPanel` command to open an elegant panel displaying all registered and discovered keybindings with their descriptions.
-5.  **Lightweight & Asynchronous**: The core sync feature runs entirely asynchronously, ensuring no freezing of your Vim editor during scanning or AI requests.
-
-## User Interface & Commands
-
-### 1. Define a Keybinding (Manual)
-
-`CheatKey <mode> <keys> <command> "description"`
-- **Description**: Manually define a keybinding and its description. This description has the highest priority and will not be overwritten by the AI.
-- **Example**: `CheatKey n <leader>s :w<CR> "Save current file"`
-
-### 2. Sync Keybindings (Automatic)
-
-`:CheatKeySync`
-- **Description**: Asynchronously scans all keymaps and requests AI-generated descriptions for those without one.
-
-### 3. View the Cheatsheet Panel
-
-`:CheatKeyPanel`
-- **Description**: Opens the keybinding cheatsheet panel.
-- **Recommended mapping**: `nmap <silent> <leader>? :CheatKeyPanel<CR>`
-
-## Configuration
-
-Configure the plugin in your `.vimrc` file:
-
-### 1. Installation (Example with `vim-plug`)
-```vim
-Plug 'wu9o/vim-cheatkey'
-```
-
-### 2. AI Service Configuration
-```vim
-" (Optional) Set your desired language. Defaults to 'en' (English).
-" Supported languages depend on the AI model. Examples: 'en', 'zh', 'ja', 'es'.
-let g:cheatkey_language = 'en'
-
-" (Optional) Set the AI provider. Defaults to 'gemini'.
-let g:cheatkey_ai_provider = 'gemini'
-
-" (Optional) Set the specific model name to use.
-let g:cheatkey_model_name = 'gemini-1.5-flash'
-
-" (Required) Set a shell command that can retrieve your API key.
-let g:cheatkey_api_key_command = 'echo $GEMINI_API_KEY'
-
-" (Optional) Customize the prompt template. Must include {rhs} and {language}.
-let g:cheatkey_prompt_template = 'You are a Vim expert. A keybinding in Vim executes the following command: "{rhs}". Please provide a concise, functional description for this command in {language}, under 15 characters. Return only the description text, without any extra formatting or explanation.'
-```
-
-## Technical Implementation Outline
-
-- **`plugin/cheatkey.vim`**:
-  - Defines the user commands: `:CheatKey`, `:CheatKeyPanel`, `:CheatKeySync`.
+- **`plugin/cheatkey.vim`**: Defines user commands.
 - **`autoload/cheatkey.vim`**:
-  - Manages a keymap registry, distinguishing between "manual" and "ai-generated" sources.
-  - `cheatkey#register()`: Implements the logic for manual registration via `:CheatKey`.
-  - `cheatkey#sync()`:
-    - Uses `maplist()` to get all mappings.
-    - Filters for "orphan" keymaps to process.
-    - Asynchronously builds and executes `curl` commands for each keymap via `job_start()` or `vim.fn.jobstart()`, calling the AI API. The prompt will be populated with the target language from `g:cheatkey_language`.
-    - Provides a callback function to parse the returned JSON and update the registry with the generated description.
-  - `cheatkey#show_panel()`: Creates and manages the panel window, merging and displaying all keymaps.
-
-## Future Enhancements
-
-- [ ] **Grouping**: Allow users to group keybindings (e.g., `[Git]`, `[File Ops]`) for categorized display.
-- [ ] **Local LLM Support**: Integrate support for locally-run LLMs like Ollama.
-- [ ] **Caching**: Cache AI-generated results to a local file to avoid redundant requests and speed up display.
-- [ ] **Interactive Editing**: Allow direct editing or refinement of AI-generated descriptions within the panel.
+  - `cheatkey#sync()`: Checks if `g:cheatkey_api_key_command` is set.
+    - If YES: Calls the asynchronous AI analyzer.
+    - If NO: Calls the local, rule-based analyzer.
+  - The AI analyzer uses `g:cheatkey_language` to format its prompt.
