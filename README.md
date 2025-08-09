@@ -14,7 +14,59 @@ Vim's power lies in its customizability. However, as configurations grow and plu
 1.  **Manual Keymap Documentation**: Provides a `:CheatKey` command to attach a description to a keybinding, which always takes the highest priority.
 2.  **Auto-Discovery & Sync**: Provides a `:CheatKeySync` command that scans your entire Vim environment (built-in, plugins, custom maps) to find undocumented keybindings.
 3.  **AI-Powered Descriptions**:
-    *   For discovered "orphan" keymaps, the plugin **asynchronously** calls a Large Language Model (LLM) API to generate high-quality descriptions based on the executed command.
+    *   ## Core Features
+
+1.  **Manual Keymap Documentation**: Provides a `:CheatKey` command to attach a description to a keybinding, which always takes the highest priority.
+2.  **Auto-Discovery & Sync**: Provides a `:CheatKeySync` command that scans your entire Vim environment to find all keybindings.
+3.  **Two-Tier Description Generation**:
+    *   **Local Fallback Analyzer (Default)**: An offline, rule-based engine that provides good-enough descriptions for common Vim commands and `<Plug>` mappings. Works out-of-the-box with zero configuration.
+    *   **AI-Powered Descriptions (Optional)**: If you provide an API key, the plugin can asynchronously call a Large Language Model (LLM) to generate superior, context-aware descriptions in your preferred language.
+4.  **Cheatsheet Panel**: A `:CheatKeyPanel` command to open an elegant panel displaying all keybindings.
+5.  **Lightweight & Asynchronous**: The AI sync feature runs entirely asynchronously, ensuring no freezing of your Vim editor.
+
+## User Interface & Commands
+...
+## Configuration
+
+Configure the plugin in your `.vimrc` file:
+
+### 1. Installation (Example with `vim-plug`)
+```vim
+Plug 'wu9o/vim-cheatkey'
+```
+
+### 2. AI Service Configuration (Optional)
+
+If you wish to use the AI-powered description feature, configure the following. Otherwise, the plugin will use its built-in local analyzer.
+
+```vim
+" (Optional) Set your desired language. Defaults to 'en' (English).
+let g:cheatkey_language = 'en'
+
+" (Optional) Set the AI provider. Defaults to 'gemini'.
+let g:cheatkey_ai_provider = 'gemini'
+
+" (Optional) Set the specific model name to use.
+let g:cheatkey_model_name = 'gemini-1.5-flash'
+
+" (Required for AI) Set a shell command that can retrieve your API key.
+let g:cheatkey_api_key_command = 'echo $GEMINI_API_KEY'
+
+" (Optional) Customize the prompt template. Must include {rhs} and {language}.
+let g:cheatkey_prompt_template = 'You are a Vim expert. A keybinding in Vim executes the following command: "{rhs}". Please provide a concise, functional description for this command in {language}, under 15 characters. Return only the description text, without any extra formatting or explanation.'
+```
+
+## Technical Implementation Outline
+...
+- `cheatkey#sync()`:
+  - Uses `maplist()` to get all mappings.
+  - Filters for "orphan" keymaps to process.
+  - **Decision**: Checks if `g:cheatkey_api_key_command` is configured.
+    - **If YES**: Asynchronously calls the AI API via `job_start()`.
+    - **If NO**: Calls the local, rule-based analyzer function.
+  - Updates the registry with the generated description.
+...
+
     *   **Multi-language Support**: Generates descriptions in the language of your choice (defaults to English).
     *   **Customizable Prompts**: Allows you to define your own prompt template to guide the AI's output style.
     *   Supports various AI providers (e.g., Google Gemini, OpenAI).
