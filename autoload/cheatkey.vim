@@ -94,16 +94,14 @@ function! s:analyze_local() abort
   let all_maps = maplist()
   let new_maps_found = 0
   for map in all_maps
-    " --- Intelligent Filter ---
+    let key_id = map.mode . '#' . map.lhs
+
+    " --- New, Robust Filtering Logic ---
     " 1. Ignore internal <Plug> mappings.
     if stridx(map.lhs, '<Plug>') == 0 | continue | endif
-    " 2. Ignore mappings not defined in user's own config files.
-    let sid = map.sid
-    if sid <= 0 | continue | endif
-    let script_path = get(scriptnames(), sid - 1, '')
-    if empty(script_path) || (fnamemodify(script_path, ':h') !~? $HOME && script_path !=# $MYVIMRC) | continue | endif
+    " 2. Ignore single-character mappings (likely built-in), unless it's a special key.
+    if len(map.lhs) == 1 && map.lhs !~# '[<]' | continue | endif
     " 3. Ignore already documented mappings.
-    let key_id = map.mode . '#' . map.lhs
     if has_key(s:registry.manual, key_id) || has_key(s:registry.generated, key_id) | continue | endif
 
     let description = s:get_local_description(map.rhs)
@@ -112,7 +110,7 @@ function! s:analyze_local() abort
       let new_maps_found += 1
     endif
   endfor
-  echom "CheatKey: Discovered " . new_maps_found . " new user keybindings."
+  echom "CheatKey: Discovered " . new_maps_found . " new keybindings."
   if bufwinnr('\[CheatKey Panel\]') != -1 | call cheatkey#show_panel() | endif
 endfunction
 
@@ -137,14 +135,11 @@ function! s:analyze_ai() abort
   let jobs_started = 0
 
   for map in all_maps
-    " --- Intelligent Filter ---
+    " --- New, Robust Filtering Logic ---
     " 1. Ignore internal <Plug> mappings.
     if stridx(map.lhs, '<Plug>') == 0 | continue | endif
-    " 2. Ignore mappings not defined in user's own config files.
-    let sid = map.sid
-    if sid <= 0 | continue | endif
-    let script_path = get(scriptnames(), sid - 1, '')
-    if empty(script_path) || (fnamemodify(script_path, ':h') !~? $HOME && script_path !=# $MYVIMRC) | continue | endif
+    " 2. Ignore single-character mappings (likely built-in), unless it's a special key.
+    if len(map.lhs) == 1 && map.lhs !~# '[<]' | continue | endif
     " 3. Ignore already documented mappings.
     let key_id = map.mode . '#' . map.lhs
     if has_key(s:registry.manual, key_id) || has_key(s:registry.generated, key_id) | continue | endif
